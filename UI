@@ -1,0 +1,211 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ScreenGui"
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+local MainUI = Instance.new("Frame")
+MainUI.BackgroundColor3 = Color3.new(0.0784313753247261,0.0784313753247261,0.0784313753247261)
+MainUI.BackgroundTransparency = 0.5
+MainUI.BorderSizePixel = 0
+MainUI.Position = UDim2.new(0.20768140256404877,0,0.082697294652462,0)
+MainUI.Size = UDim2.new(0,780,0,427)
+MainUI.Name = "MainUI"
+MainUI.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0,9)
+UICorner.Parent = MainUI
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.new(0.9215686321258545,0.9215686321258545,0.9215686321258545)
+UIStroke.Thickness = 3.9000000953674316
+UIStroke.Parent = MainUI
+
+local Line1 = Instance.new("Frame")
+Line1.BackgroundColor3 = UIStroke.Color
+Line1.BorderSizePixel = 0
+Line1.Position = UDim2.new(0,0,0.11431463062763214,0)
+Line1.Size = UDim2.new(0,780,0,2)
+Line1.Name = "Line1"
+Line1.Parent = MainUI
+
+local Close = Instance.new("TextButton")
+Close.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json",Enum.FontWeight.Regular,Enum.FontStyle.Normal)
+Close.Text = "X"
+Close.TextColor3 = Color3.new(1,1,1)
+Close.TextSize = 20
+Close.BackgroundColor3 = Color3.new(0.9764706492424011,0,0.01568627543747425)
+Close.BorderSizePixel = 0
+Close.Position = UDim2.new(0.9537788033485413,0,0.021164020523428917,0)
+Close.Size = UDim2.new(0,25,0,25)
+Close.Name = "Close"
+Close.Parent = MainUI
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.Parent = Close
+
+local Minimize = Instance.new("TextButton")
+Minimize.FontFace = Close.FontFace
+Minimize.Text = "-"
+Minimize.TextColor3 = Color3.new(0,0,0)
+Minimize.TextSize = 50
+Minimize.BackgroundColor3 = Color3.new(1,1,1)
+Minimize.BorderSizePixel = 0
+Minimize.Position = UDim2.new(0.9122737050056458,0,0.021164020523428917,0)
+Minimize.Size = UDim2.new(0,25,0,25)
+Minimize.Name = "Minimize"
+Minimize.Parent = MainUI
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.Parent = Minimize
+
+local Username = Instance.new("TextLabel")
+Username.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json",Enum.FontWeight.Bold,Enum.FontStyle.Normal)
+Username.Text = "Welcome Back!"
+Username.TextColor3 = Color3.new(0.32549020648002625,0.7568627595901489,0.9019607901573181)
+Username.TextSize = 22
+Username.TextStrokeColor3 = Username.TextColor3
+Username.BackgroundTransparency = 1
+Username.BorderSizePixel = 0
+Username.Position = UDim2.new(0.02,0,0.02,0)
+Username.Size = UDim2.new(0,220,0,40)
+Username.Name = "Username"
+Username.Parent = MainUI
+
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Parent = Username
+
+local Title = Instance.new("TextLabel")
+Title.FontFace = Font.new("rbxasset://fonts/families/Arial.json",Enum.FontWeight.Bold,Enum.FontStyle.Normal)
+Title.Text = "DTL HUB - MVDS SCRIPT AUTO FARM STREAK"
+Title.TextColor3 = Username.TextColor3
+Title.TextSize = 15
+Title.BackgroundTransparency = 1
+Title.BorderSizePixel = 0
+Title.Position = UDim2.new(0.07479224354028702,0,0,0)
+Title.Size = UDim2.new(0,228,0,40)
+Title.Name = "Title"
+Title.Parent = MainUI
+
+local Line2 = Instance.new("Frame")
+Line2.BackgroundColor3 = UIStroke.Color
+Line2.BorderSizePixel = 0
+Line2.Position = UDim2.new(0.31163424253463745,0,0.11431470513343811,0)
+Line2.Size = UDim2.new(0,1,0,378)
+Line2.Name = "Line2"
+Line2.Parent = MainUI
+
+local Profile = Instance.new("Frame")
+Profile.BackgroundColor3 = Color3.new(1,1,1)
+Profile.BackgroundTransparency = 0.3499999940395355
+Profile.BorderSizePixel = 0
+Profile.Position = UDim2.new(0.019390596076846123,0,0.1507936418056488,0)
+Profile.Size = UDim2.new(0,214,0,218)
+Profile.Name = "Profile"
+Profile.Parent = MainUI
+
+local ProfileCorner = Instance.new("UICorner")
+ProfileCorner.CornerRadius = UDim.new(0,9)
+ProfileCorner.Parent = Profile
+
+local Avatar = Instance.new("ImageLabel")
+Avatar.BackgroundTransparency = 1
+Avatar.Size = UDim2.new(1,-20,1,-60)
+Avatar.Position = UDim2.new(0,10,0,10)
+Avatar.Parent = Profile
+
+local AvatarCorner = Instance.new("UICorner")
+AvatarCorner.CornerRadius = UDim.new(0,12)
+AvatarCorner.Parent = Avatar
+
+Avatar.Image = Players:GetUserThumbnailAsync(
+	player.UserId,
+	Enum.ThumbnailType.HeadShot,
+	Enum.ThumbnailSize.Size420x420
+)
+
+local Welcome = Instance.new("TextLabel")
+Welcome.FontFace = Username.FontFace
+Welcome.Text = "@" .. player.Name
+Welcome.TextColor3 = Username.TextColor3
+Welcome.TextStrokeColor3 = Username.TextColor3
+Welcome.TextSize = 22
+Welcome.BackgroundTransparency = 1
+Welcome.BorderSizePixel = 0
+Welcome.Position = UDim2.new(0.027129070833325386,0,0.708777904510498,0)
+Welcome.Size = UDim2.new(0,200,0,103)
+Welcome.Name = "Welcome"
+Welcome.Parent = Profile
+
+local Line3 = Instance.new("Frame")
+Line3.BackgroundColor3 = UIStroke.Color
+Line3.BorderSizePixel = 0
+Line3.Position = UDim2.new(0.31163421273231506,0,0.7138463258743286,0)
+Line3.Size = UDim2.new(0,536,0,2)
+Line3.Name = "Line3"
+Line3.Parent = MainUI
+
+local dragging = false
+local dragStart
+local startPos
+
+MainUI.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = MainUI.Position
+	end
+end)
+
+MainUI.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		MainUI.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+local isMinimized = false
+local originalSize = MainUI.Size
+
+Minimize.MouseButton1Click:Connect(function()
+	local info = TweenInfo.new(0.35,Enum.EasingStyle.Quad,Enum.EasingDirection.Out)
+	if not isMinimized then
+		isMinimized = true
+		for _,v in ipairs(MainUI:GetChildren()) do
+			if v:IsA("GuiObject") and v ~= Minimize and v ~= Close then
+				v.Visible = false
+			end
+		end
+		TweenService:Create(MainUI,info,{Size = UDim2.new(0,60,0,60)}):Play()
+		TweenService:Create(UICorner,info,{CornerRadius = UDim.new(1,0)}):Play()
+	else
+		isMinimized = false
+		for _,v in ipairs(MainUI:GetChildren()) do
+			if v:IsA("GuiObject") then
+				v.Visible = true
+			end
+		end
+		TweenService:Create(MainUI,info,{Size = originalSize}):Play()
+		TweenService:Create(UICorner,info,{CornerRadius = UDim.new(0,9)}):Play()
+	end
+end)
+
+Close.MouseButton1Click:Connect(function()
+	MainUI.Visible = false
+end)
