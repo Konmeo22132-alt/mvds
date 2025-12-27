@@ -1,13 +1,13 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService") -- Thêm Service này để tính FPS
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 -- Tạo GUI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = player:WaitForChild("PlayerGui")
-ScreenGui.Name = "DTLHub_UI" -- Đặt tên để dễ quản lý
+ScreenGui.Name = "DTLHub_UI"
 ScreenGui.ResetOnSpawn = false -- Giữ GUI không bị mất khi chết
 
 local MainUI = Instance.new("Frame")
@@ -92,7 +92,7 @@ Title.BorderSizePixel = 0
 Title.Position = UDim2.new(0.07479224354028702, 0, 0, 0)
 Title.Size = UDim2.new(0, 228, 0, 40)
 
--- Phần Streak (Đã sửa lỗi chính tả)
+-- Phần Streak
 local Streak = Instance.new("Frame")
 Streak.Name = "Streak"
 Streak.Parent = MainUI
@@ -104,10 +104,10 @@ Streak.Size = UDim2.new(0, 507, 0, 103)
 Instance.new("UICorner", Streak).CornerRadius = UDim.new(0, 9)
 
 local Streak_Title = Instance.new("TextLabel")
-Streak_Title.Name = "Streak_Title" -- Đã sửa tên biến
+Streak_Title.Name = "Streak_Title"
 Streak_Title.Parent = Streak
 Streak_Title.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-Streak_Title.Text = "STREAK" -- Đã sửa text hiển thị
+Streak_Title.Text = "STREAK"
 Streak_Title.TextColor3 = Color3.new(0, 0, 0)
 Streak_Title.TextSize = 24
 Streak_Title.BackgroundTransparency = 1
@@ -119,7 +119,7 @@ local Current_Streak = Instance.new("TextLabel")
 Current_Streak.Name = "Current_Streak"
 Current_Streak.Parent = Streak
 Current_Streak.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-Current_Streak.Text = "Current Streak: 0" -- Giá trị mặc định
+Current_Streak.Text = "Current Streak: 0"
 Current_Streak.TextColor3 = Color3.new(0, 0, 0)
 Current_Streak.TextSize = 17
 Current_Streak.BackgroundTransparency = 1
@@ -156,12 +156,13 @@ StatInfo.Parent = Stat
 StatInfo.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 StatInfo.Text = "Loading Stats..."
 StatInfo.TextColor3 = Color3.new(0, 0, 0)
-StatInfo.TextSize = 16 -- Giảm size một chút để khỏi bị tràn chữ
+StatInfo.TextSize = 16
 StatInfo.BackgroundTransparency = 1
 StatInfo.BorderSizePixel = 0
 StatInfo.Position = UDim2.new(0.2849622964859009, 0, 0.25242719054222107, 0)
 StatInfo.Size = UDim2.new(0, 200, 0, 50)
-StatInfo.XAlignment = Enum.TextXAlignment.Left -- Căn trái cho đẹp
+-- [[ ĐÃ FIX LỖI TẠI DÒNG DƯỚI ĐÂY ]] --
+StatInfo.TextXAlignment = Enum.TextXAlignment.Left
 
 local Line2 = Instance.new("Frame")
 Line2.Name = "Line2"
@@ -328,40 +329,39 @@ Minimize.MouseButton1Click:Connect(function()
 end)
 
 Close.MouseButton1Click:Connect(function()
-	ScreenGui:Destroy() -- Xóa hẳn GUI thay vì chỉ ẩn để tiết kiệm bộ nhớ
+	ScreenGui:Destroy()
 end)
 
 ----------------------------------------------------------
--- LOGIC MỚI ĐƯỢC CẬP NHẬT (STATS & BUTTONS)
+-- LOGIC CẬP NHẬT STATS & BUTTONS
 ----------------------------------------------------------
 
--- 1. Cập nhật Stats (Ping, FPS, Time, Enemy)
+-- Cập nhật Stats (Ping, FPS, Time, Enemy)
 RunService.RenderStepped:Connect(function(step)
 	-- Lấy Ping (ms)
 	local ping = math.floor(player:GetNetworkPing() * 1000)
 	-- Tính FPS
 	local fps = math.floor(1 / step)
-	-- Lấy giờ hiện tại (Format Giờ:Phút:Giây)
+	-- Lấy giờ hiện tại
 	local date = os.date("*t")
 	local timeStr = string.format("%02d:%02d:%02d", date.hour, date.min, date.sec)
-	-- Đếm số kẻ địch (số player trừ đi chính mình)
+	-- Đếm số kẻ địch
 	local enemyCount = #Players:GetPlayers() - 1
 
 	-- Cập nhật Text
 	StatInfo.Text = string.format("Time: %s | FPS: %d | Ping: %d | Enemy: %d", timeStr, fps, ping, enemyCount)
 end)
 
--- 2. Logic cho nút Walk To Ring
+-- Logic cho nút Walk To Ring
 Walk_To_Ring.MouseButton1Click:Connect(function()
 	print("[DEBUG] Đã nhấn Walk To Ring")
-	-- Thêm code di chuyển nhân vật ở đây
-	-- Ví dụ: game.Players.LocalPlayer.Character.Humanoid:MoveTo(Vector3.new(0, 0, 0))
+	-- Thêm code di chuyển tại đây
 end)
 
--- 3. Logic cho nút Join Queue
+-- Logic cho nút Join Queue
 Join_Queue.MouseButton1Click:Connect(function()
 	print("[DEBUG] Đã nhấn Join Queue")
-	-- Thêm code Fire RemoteEvent để vào hàng chờ ở đây
+	-- Thêm code Fire RemoteEvent tại đây
 end)
 
 print("DTL Hub Loaded Successfully!")
