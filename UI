@@ -1,319 +1,367 @@
-local Players=game:GetService("Players")
-local TweenService=game:GetService("TweenService")
-local UserInputService=game:GetService("UserInputService")
-local player=Players.LocalPlayer
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService") -- Thêm Service này để tính FPS
+local player = Players.LocalPlayer
 
-local ScreenGui=Instance.new("ScreenGui")
-ScreenGui.Parent=player:WaitForChild("PlayerGui")
+-- Tạo GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+ScreenGui.Name = "DTLHub_UI" -- Đặt tên để dễ quản lý
+ScreenGui.ResetOnSpawn = false -- Giữ GUI không bị mất khi chết
 
-local MainUI=Instance.new("Frame")
-MainUI.Name="MainUI"
-MainUI.Parent=ScreenGui
-MainUI.BackgroundColor3=Color3.new(0.0784313753247261,0.0784313753247261,0.0784313753247261)
-MainUI.BackgroundTransparency=0.5
-MainUI.BorderSizePixel=0
-MainUI.Position=UDim2.new(0.20768140256404877,0,0.082697294652462,0)
-MainUI.Size=UDim2.new(0,780,0,427)
-MainUI.Active=true
-MainUI.Selectable=true
+local MainUI = Instance.new("Frame")
+MainUI.Name = "MainUI"
+MainUI.Parent = ScreenGui
+MainUI.BackgroundColor3 = Color3.new(0.0784313753247261, 0.0784313753247261, 0.0784313753247261)
+MainUI.BackgroundTransparency = 0.5
+MainUI.BorderSizePixel = 0
+MainUI.Position = UDim2.new(0.20768140256404877, 0, 0.082697294652462, 0)
+MainUI.Size = UDim2.new(0, 780, 0, 427)
+MainUI.Active = true
+MainUI.Selectable = true
 
-local UICorner=Instance.new("UICorner")
-UICorner.CornerRadius=UDim.new(0,9)
-UICorner.Parent=MainUI
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 9)
+UICorner.Parent = MainUI
 
-local UIStroke=Instance.new("UIStroke")
-UIStroke.Color=Color3.new(0.9215686321258545,0.9215686321258545,0.9215686321258545)
-UIStroke.Thickness=3.9000000953674316
-UIStroke.Parent=MainUI
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.new(0.9215686321258545, 0.9215686321258545, 0.9215686321258545)
+UIStroke.Thickness = 3.9
+UIStroke.Parent = MainUI
 
-local Line1=Instance.new("Frame")
-Line1.Name="Line1"
-Line1.Parent=MainUI
-Line1.BackgroundColor3=UIStroke.Color
-Line1.BorderSizePixel=0
-Line1.Position=UDim2.new(0,0,0.11431463062763214,0)
-Line1.Size=UDim2.new(0,780,0,2)
+local Line1 = Instance.new("Frame")
+Line1.Name = "Line1"
+Line1.Parent = MainUI
+Line1.BackgroundColor3 = UIStroke.Color
+Line1.BorderSizePixel = 0
+Line1.Position = UDim2.new(0, 0, 0.11431463062763214, 0)
+Line1.Size = UDim2.new(0, 780, 0, 2)
 
-local Close=Instance.new("TextButton")
-Close.Name="Close"
-Close.Parent=MainUI
-Close.FontFace=Font.new("rbxasset://fonts/families/SourceSansPro.json",Enum.FontWeight.Regular,Enum.FontStyle.Normal)
-Close.Text="X"
-Close.TextColor3=Color3.new(1,1,1)
-Close.TextSize=20
-Close.BackgroundColor3=Color3.new(0.9764706492424011,0,0.01568627543747425)
-Close.BorderSizePixel=0
-Close.Position=UDim2.new(0.9537788033485413,0,0.021164020523428917,0)
-Close.Size=UDim2.new(0,25,0,25)
-Instance.new("UICorner",Close)
+-- Nút Đóng
+local Close = Instance.new("TextButton")
+Close.Name = "Close"
+Close.Parent = MainUI
+Close.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+Close.Text = "X"
+Close.TextColor3 = Color3.new(1, 1, 1)
+Close.TextSize = 20
+Close.BackgroundColor3 = Color3.new(0.9764706492424011, 0, 0.01568627543747425)
+Close.BorderSizePixel = 0
+Close.Position = UDim2.new(0.9537788033485413, 0, 0.021164020523428917, 0)
+Close.Size = UDim2.new(0, 25, 0, 25)
+Instance.new("UICorner", Close)
 
-local Minimize=Instance.new("TextButton")
-Minimize.Name="Minimize"
-Minimize.Parent=MainUI
-Minimize.FontFace=Close.FontFace
-Minimize.Text="-"
-Minimize.TextColor3=Color3.new(0,0,0)
-Minimize.TextSize=50
-Minimize.BackgroundColor3=Color3.new(1,1,1)
-Minimize.BorderSizePixel=0
-Minimize.Position=UDim2.new(0.9122737050056458,0,0.021164020523428917,0)
-Minimize.Size=UDim2.new(0,25,0,25)
-Instance.new("UICorner",Minimize)
+-- Nút Thu nhỏ
+local Minimize = Instance.new("TextButton")
+Minimize.Name = "Minimize"
+Minimize.Parent = MainUI
+Minimize.FontFace = Close.FontFace
+Minimize.Text = "-"
+Minimize.TextColor3 = Color3.new(0, 0, 0)
+Minimize.TextSize = 50
+Minimize.BackgroundColor3 = Color3.new(1, 1, 1)
+Minimize.BorderSizePixel = 0
+Minimize.Position = UDim2.new(0.9122737050056458, 0, 0.021164020523428917, 0)
+Minimize.Size = UDim2.new(0, 25, 0, 25)
+Instance.new("UICorner", Minimize)
 
-local Username=Instance.new("TextLabel")
-Username.Name="Username"
-Username.Parent=Minimize
-Username.FontFace=Font.new("rbxasset://fonts/families/LuckiestGuy.json",Enum.FontWeight.Bold,Enum.FontStyle.Normal)
-Username.Text="Welcome Back!"
-Username.TextColor3=Color3.new(0.32549020648002625,0.7568627595901489,0.9019607901573181)
-Username.TextSize=22
-Username.TextStrokeColor3=Username.TextColor3
-Username.BackgroundTransparency=1
-Username.BorderSizePixel=0
-Username.Position=UDim2.new(-27.593130111694336,0,10.121905326843262,0)
-Username.Size=UDim2.new(0,200,0,117)
-Instance.new("UIGradient",Username)
+local Username = Instance.new("TextLabel")
+Username.Name = "Username"
+Username.Parent = Minimize
+Username.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+Username.Text = "Welcome Back!"
+Username.TextColor3 = Color3.new(0.32549020648002625, 0.7568627595901489, 0.9019607901573181)
+Username.TextSize = 22
+Username.TextStrokeColor3 = Username.TextColor3
+Username.BackgroundTransparency = 1
+Username.BorderSizePixel = 0
+Username.Position = UDim2.new(-27.593130111694336, 0, 10.121905326843262, 0)
+Username.Size = UDim2.new(0, 200, 0, 117)
+Instance.new("UIGradient", Username)
 
-local Title=Instance.new("TextLabel")
-Title.Name="Title"
-Title.Parent=MainUI
-Title.FontFace=Font.new("rbxasset://fonts/families/Arial.json",Enum.FontWeight.Bold,Enum.FontStyle.Normal)
-Title.Text="DTL HUB - MVDS SCRIPT AUTO FARM STREAK"
-Title.TextColor3=Username.TextColor3
-Title.TextSize=15
-Title.BackgroundTransparency=1
-Title.BorderSizePixel=0
-Title.Position=UDim2.new(0.07479224354028702,0,0,0)
-Title.Size=UDim2.new(0,228,0,40)
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Parent = MainUI
+Title.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+Title.Text = "DTL HUB - MVDS SCRIPT AUTO FARM STREAK"
+Title.TextColor3 = Username.TextColor3
+Title.TextSize = 15
+Title.BackgroundTransparency = 1
+Title.BorderSizePixel = 0
+Title.Position = UDim2.new(0.07479224354028702, 0, 0, 0)
+Title.Size = UDim2.new(0, 228, 0, 40)
 
-local Streak=Instance.new("Frame")
-Streak.Name="Streak"
-Streak.Parent=MainUI
-Streak.BackgroundColor3=Color3.new(1,1,1)
-Streak.BackgroundTransparency=0.3499999940395355
-Streak.BorderSizePixel=0
-Streak.Position=UDim2.new(0.33518004417419434,0,0.1507936418056488,0)
-Streak.Size=UDim2.new(0,507,0,103)
-Instance.new("UICorner",Streak).CornerRadius=UDim.new(0,9)
+-- Phần Streak (Đã sửa lỗi chính tả)
+local Streak = Instance.new("Frame")
+Streak.Name = "Streak"
+Streak.Parent = MainUI
+Streak.BackgroundColor3 = Color3.new(1, 1, 1)
+Streak.BackgroundTransparency = 0.3499999940395355
+Streak.BorderSizePixel = 0
+Streak.Position = UDim2.new(0.33518004417419434, 0, 0.1507936418056488, 0)
+Streak.Size = UDim2.new(0, 507, 0, 103)
+Instance.new("UICorner", Streak).CornerRadius = UDim.new(0, 9)
 
-local Steak_Title=Instance.new("TextLabel")
-Steak_Title.Name="Steak_Title"
-Steak_Title.Parent=Streak
-Steak_Title.FontFace=Font.new("rbxasset://fonts/families/SourceSansPro.json",Enum.FontWeight.Bold,Enum.FontStyle.Normal)
-Steak_Title.Text="STREAK"
-Steak_Title.TextColor3=Color3.new(0,0,0)
-Steak_Title.TextSize=24
-Steak_Title.BackgroundTransparency=1
-Steak_Title.BorderSizePixel=0
-Steak_Title.Position=UDim2.new(-0.11612903326749802,0,-0.058252427726984024,0)
-Steak_Title.Size=UDim2.new(0,207,0,57)
+local Streak_Title = Instance.new("TextLabel")
+Streak_Title.Name = "Streak_Title" -- Đã sửa tên biến
+Streak_Title.Parent = Streak
+Streak_Title.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+Streak_Title.Text = "STREAK" -- Đã sửa text hiển thị
+Streak_Title.TextColor3 = Color3.new(0, 0, 0)
+Streak_Title.TextSize = 24
+Streak_Title.BackgroundTransparency = 1
+Streak_Title.BorderSizePixel = 0
+Streak_Title.Position = UDim2.new(-0.11612903326749802, 0, -0.058252427726984024, 0)
+Streak_Title.Size = UDim2.new(0, 207, 0, 57)
 
-local Current_Streak=Instance.new("TextLabel")
-Current_Streak.Name="Current_Streak"
-Current_Streak.Parent=Streak
-Current_Streak.FontFace=Font.new("rbxasset://fonts/families/Arial.json",Enum.FontWeight.Regular,Enum.FontStyle.Normal)
-Current_Streak.Text="Current Steak: {streak_count}"
-Current_Streak.TextColor3=Color3.new(0,0,0)
-Current_Streak.TextSize=17
-Current_Streak.BackgroundTransparency=1
-Current_Streak.BorderSizePixel=0
-Current_Streak.Position=UDim2.new(0.03870967775583267,0,0.33980581164360046,0)
-Current_Streak.Size=UDim2.new(0,200,0,50)
+local Current_Streak = Instance.new("TextLabel")
+Current_Streak.Name = "Current_Streak"
+Current_Streak.Parent = Streak
+Current_Streak.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+Current_Streak.Text = "Current Streak: 0" -- Giá trị mặc định
+Current_Streak.TextColor3 = Color3.new(0, 0, 0)
+Current_Streak.TextSize = 17
+Current_Streak.BackgroundTransparency = 1
+Current_Streak.BorderSizePixel = 0
+Current_Streak.Position = UDim2.new(0.03870967775583267, 0, 0.33980581164360046, 0)
+Current_Streak.Size = UDim2.new(0, 200, 0, 50)
 
-local Stat=Instance.new("Frame")
-Stat.Name="Stat"
-Stat.Parent=MainUI
-Stat.BackgroundColor3=Color3.new(1,1,1)
-Stat.BackgroundTransparency=0.3499999940395355
-Stat.BorderSizePixel=0
-Stat.Position=UDim2.new(0.33518004417419434,0,0.43629100918769836,0)
-Stat.Size=UDim2.new(0,507,0,103)
-Instance.new("UICorner",Stat).CornerRadius=UDim.new(0,9)
+-- Phần Stat (Status)
+local Stat = Instance.new("Frame")
+Stat.Name = "Stat"
+Stat.Parent = MainUI
+Stat.BackgroundColor3 = Color3.new(1, 1, 1)
+Stat.BackgroundTransparency = 0.3499999940395355
+Stat.BorderSizePixel = 0
+Stat.Position = UDim2.new(0.33518004417419434, 0, 0.43629100918769836, 0)
+Stat.Size = UDim2.new(0, 507, 0, 103)
+Instance.new("UICorner", Stat).CornerRadius = UDim.new(0, 9)
 
-local StatTitle=Instance.new("TextLabel")
-StatTitle.Name="Stat"
-StatTitle.Parent=Stat
-StatTitle.FontFace=Font.new("rbxasset://fonts/families/SourceSansPro.json",Enum.FontWeight.Bold,Enum.FontStyle.Normal)
-StatTitle.Text="Status"
-StatTitle.TextColor3=Color3.new(0,0,0)
-StatTitle.TextSize=24
-StatTitle.BackgroundTransparency=1
-StatTitle.BorderSizePixel=0
-StatTitle.Position=UDim2.new(-0.11612903326749802,0,-0.058252427726984024,0)
-StatTitle.Size=UDim2.new(0,207,0,57)
+local StatTitle = Instance.new("TextLabel")
+StatTitle.Name = "StatTitle"
+StatTitle.Parent = Stat
+StatTitle.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+StatTitle.Text = "Status"
+StatTitle.TextColor3 = Color3.new(0, 0, 0)
+StatTitle.TextSize = 24
+StatTitle.BackgroundTransparency = 1
+StatTitle.BorderSizePixel = 0
+StatTitle.Position = UDim2.new(-0.11612903326749802, 0, -0.058252427726984024, 0)
+StatTitle.Size = UDim2.new(0, 207, 0, 57)
 
-local StatInfo=Instance.new("TextLabel")
-StatInfo.Name="Current_Streak"
-StatInfo.Parent=Stat
-StatInfo.FontFace=Font.new("rbxasset://fonts/families/Arial.json",Enum.FontWeight.Regular,Enum.FontStyle.Normal)
-StatInfo.Text="Client time: {Time} | FPS: {fps} | Ping: {Ping} | Enemy: {Enemy}"
-StatInfo.TextColor3=Color3.new(0,0,0)
-StatInfo.TextSize=17
-StatInfo.BackgroundTransparency=1
-StatInfo.BorderSizePixel=0
-StatInfo.Position=UDim2.new(0.2849622964859009,0,0.25242719054222107,0)
-StatInfo.Size=UDim2.new(0,200,0,50)
+local StatInfo = Instance.new("TextLabel")
+StatInfo.Name = "StatInfo"
+StatInfo.Parent = Stat
+StatInfo.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+StatInfo.Text = "Loading Stats..."
+StatInfo.TextColor3 = Color3.new(0, 0, 0)
+StatInfo.TextSize = 16 -- Giảm size một chút để khỏi bị tràn chữ
+StatInfo.BackgroundTransparency = 1
+StatInfo.BorderSizePixel = 0
+StatInfo.Position = UDim2.new(0.2849622964859009, 0, 0.25242719054222107, 0)
+StatInfo.Size = UDim2.new(0, 200, 0, 50)
+StatInfo.XAlignment = Enum.TextXAlignment.Left -- Căn trái cho đẹp
 
-local Line2=Instance.new("Frame")
-Line2.Name="Line2"
-Line2.Parent=MainUI
-Line2.BackgroundColor3=UIStroke.Color
-Line2.BorderSizePixel=0
-Line2.Position=UDim2.new(0.31163424253463745,0,0.11431470513343811,0)
-Line2.Size=UDim2.new(0,1,0,378)
+local Line2 = Instance.new("Frame")
+Line2.Name = "Line2"
+Line2.Parent = MainUI
+Line2.BackgroundColor3 = UIStroke.Color
+Line2.BorderSizePixel = 0
+Line2.Position = UDim2.new(0.31163424253463745, 0, 0.11431470513343811, 0)
+Line2.Size = UDim2.new(0, 1, 0, 378)
 
-local Profile=Instance.new("Frame")
-Profile.Name="Profile"
-Profile.Parent=MainUI
-Profile.BackgroundColor3=Color3.new(1,1,1)
-Profile.BackgroundTransparency=0.3499999940395355
-Profile.BorderSizePixel=0
-Profile.Position=UDim2.new(0.019390596076846123,0,0.1507936418056488,0)
-Profile.Size=UDim2.new(0,214,0,218)
-Instance.new("UICorner",Profile).CornerRadius=UDim.new(0,9)
+local Profile = Instance.new("Frame")
+Profile.Name = "Profile"
+Profile.Parent = MainUI
+Profile.BackgroundColor3 = Color3.new(1, 1, 1)
+Profile.BackgroundTransparency = 0.3499999940395355
+Profile.BorderSizePixel = 0
+Profile.Position = UDim2.new(0.019390596076846123, 0, 0.1507936418056488, 0)
+Profile.Size = UDim2.new(0, 214, 0, 218)
+Instance.new("UICorner", Profile).CornerRadius = UDim.new(0, 9)
 
-local Avatar=Instance.new("ImageLabel")
-Avatar.Parent=Profile
-Avatar.BackgroundTransparency=1
-Avatar.Size=UDim2.new(1,-20,1,-20)
-Avatar.Position=UDim2.new(0,10,0,10)
-Instance.new("UICorner",Avatar)
-Avatar.Image=Players:GetUserThumbnailAsync(player.UserId,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size420x420)
+local Avatar = Instance.new("ImageLabel")
+Avatar.Parent = Profile
+Avatar.BackgroundTransparency = 1
+Avatar.Size = UDim2.new(1, -20, 1, -20)
+Avatar.Position = UDim2.new(0, 10, 0, 10)
+Instance.new("UICorner", Avatar)
+Avatar.Image = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 
-local Welcome=Instance.new("TextLabel")
-Welcome.Name="Welcome"
-Welcome.Parent=MainUI
-Welcome.FontFace=Username.FontFace
-Welcome.Text="@"..player.Name
-Welcome.TextColor3=Username.TextColor3
-Welcome.TextStrokeColor3=Username.TextColor3
-Welcome.TextSize=22
-Welcome.BackgroundTransparency=1
-Welcome.BorderSizePixel=0
-Welcome.Position=UDim2.new(0.027129070833325386,0,0.708777904510498,0)
-Welcome.Size=UDim2.new(0,200,0,103)
+local Welcome = Instance.new("TextLabel")
+Welcome.Name = "Welcome"
+Welcome.Parent = MainUI
+Welcome.FontFace = Username.FontFace
+Welcome.Text = "@" .. player.Name
+Welcome.TextColor3 = Username.TextColor3
+Welcome.TextStrokeColor3 = Username.TextColor3
+Welcome.TextSize = 22
+Welcome.BackgroundTransparency = 1
+Welcome.BorderSizePixel = 0
+Welcome.Position = UDim2.new(0.027129070833325386, 0, 0.708777904510498, 0)
+Welcome.Size = UDim2.new(0, 200, 0, 103)
 
-local Line3=Instance.new("Frame")
-Line3.Name="Line3"
-Line3.Parent=MainUI
-Line3.BackgroundColor3=UIStroke.Color
-Line3.BorderSizePixel=0
-Line3.Position=UDim2.new(0.31163421273231506,0,0.7138463258743286,0)
-Line3.Size=UDim2.new(0,536,0,2)
+local Line3 = Instance.new("Frame")
+Line3.Name = "Line3"
+Line3.Parent = MainUI
+Line3.BackgroundColor3 = UIStroke.Color
+Line3.BorderSizePixel = 0
+Line3.Position = UDim2.new(0.31163421273231506, 0, 0.7138463258743286, 0)
+Line3.Size = UDim2.new(0, 536, 0, 2)
 
-local Settings=Instance.new("Frame")
-Settings.Name="Settings"
-Settings.Parent=MainUI
-Settings.BackgroundColor3=Color3.new(1,1,1)
-Settings.BackgroundTransparency=0.3499999940395355
-Settings.BorderSizePixel=0
-Settings.Position=UDim2.new(0.33518004417419434,0,0.7383987307548523,0)
-Settings.Size=UDim2.new(0,507,0,103)
-Instance.new("UICorner",Settings).CornerRadius=UDim.new(0,9)
+local Settings = Instance.new("Frame")
+Settings.Name = "Settings"
+Settings.Parent = MainUI
+Settings.BackgroundColor3 = Color3.new(1, 1, 1)
+Settings.BackgroundTransparency = 0.3499999940395355
+Settings.BorderSizePixel = 0
+Settings.Position = UDim2.new(0.33518004417419434, 0, 0.7383987307548523, 0)
+Settings.Size = UDim2.new(0, 507, 0, 103)
+Instance.new("UICorner", Settings).CornerRadius = UDim.new(0, 9)
 
-local SettingsTitle=Instance.new("TextLabel")
-SettingsTitle.Name="Stat"
-SettingsTitle.Parent=Settings
-SettingsTitle.FontFace=Font.new("rbxasset://fonts/families/SourceSansPro.json",Enum.FontWeight.Bold,Enum.FontStyle.Normal)
-SettingsTitle.Text="Settings"
-SettingsTitle.TextColor3=Color3.new(0,0,0)
-SettingsTitle.TextSize=24
-SettingsTitle.BackgroundTransparency=1
-SettingsTitle.BorderSizePixel=0
-SettingsTitle.Position=UDim2.new(0.2882101833820343,0,-0.10679611563682556,0)
-SettingsTitle.Size=UDim2.new(0,207,0,57)
+local SettingsTitle = Instance.new("TextLabel")
+SettingsTitle.Name = "SettingsTitle"
+SettingsTitle.Parent = Settings
+SettingsTitle.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+SettingsTitle.Text = "Settings"
+SettingsTitle.TextColor3 = Color3.new(0, 0, 0)
+SettingsTitle.TextSize = 24
+SettingsTitle.BackgroundTransparency = 1
+SettingsTitle.BorderSizePixel = 0
+SettingsTitle.Position = UDim2.new(0.2882101833820343, 0, -0.10679611563682556, 0)
+SettingsTitle.Size = UDim2.new(0, 207, 0, 57)
 
-local Walk_To_Ring=Instance.new("TextButton")
-Walk_To_Ring.Name="Walk_To_Ring"
-Walk_To_Ring.Parent=Settings
-Walk_To_Ring.FontFace=Font.new("rbxasset://fonts/families/SourceSansPro.json",Enum.FontWeight.Regular,Enum.FontStyle.Normal)
-Walk_To_Ring.Text="Walk To Ring"
-Walk_To_Ring.TextColor3=Color3.new(0,0,0)
-Walk_To_Ring.TextSize=14
-Walk_To_Ring.BackgroundColor3=Color3.new(1,1,1)
-Walk_To_Ring.BorderSizePixel=0
-Walk_To_Ring.Position=UDim2.new(0.047337278723716736,0,0.3300970792770386,0)
-Walk_To_Ring.Size=UDim2.new(0,200,0,50)
-Instance.new("UICorner",Walk_To_Ring)
+local Walk_To_Ring = Instance.new("TextButton")
+Walk_To_Ring.Name = "Walk_To_Ring"
+Walk_To_Ring.Parent = Settings
+Walk_To_Ring.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+Walk_To_Ring.Text = "Walk To Ring"
+Walk_To_Ring.TextColor3 = Color3.new(0, 0, 0)
+Walk_To_Ring.TextSize = 14
+Walk_To_Ring.BackgroundColor3 = Color3.new(1, 1, 1)
+Walk_To_Ring.BorderSizePixel = 0
+Walk_To_Ring.Position = UDim2.new(0.047337278723716736, 0, 0.3300970792770386, 0)
+Walk_To_Ring.Size = UDim2.new(0, 200, 0, 50)
+Instance.new("UICorner", Walk_To_Ring)
 
-local Join_Queue=Instance.new("TextButton")
-Join_Queue.Name="Join_Queue"
-Join_Queue.Parent=Settings
-Join_Queue.FontFace=Walk_To_Ring.FontFace
-Join_Queue.Text="Join Queue"
-Join_Queue.TextColor3=Color3.new(0,0,0)
-Join_Queue.TextSize=14
-Join_Queue.BackgroundColor3=Color3.new(1,1,1)
-Join_Queue.BorderSizePixel=0
-Join_Queue.Position=UDim2.new(0.5562130212783813,0,0.3300970792770386,0)
-Join_Queue.Size=UDim2.new(0,200,0,50)
-Instance.new("UICorner",Join_Queue)
+local Join_Queue = Instance.new("TextButton")
+Join_Queue.Name = "Join_Queue"
+Join_Queue.Parent = Settings
+Join_Queue.FontFace = Walk_To_Ring.FontFace
+Join_Queue.Text = "Join Queue"
+Join_Queue.TextColor3 = Color3.new(0, 0, 0)
+Join_Queue.TextSize = 14
+Join_Queue.BackgroundColor3 = Color3.new(1, 1, 1)
+Join_Queue.BorderSizePixel = 0
+Join_Queue.Position = UDim2.new(0.5562130212783813, 0, 0.3300970792770386, 0)
+Join_Queue.Size = UDim2.new(0, 200, 0, 50)
+Instance.new("UICorner", Join_Queue)
 
-local dragging=false
+----------------------------------------------------------
+-- LOGIC KÉO THẢ (DRAG)
+----------------------------------------------------------
+local dragging = false
 local dragStart
 local startPos
 local dragInput
 
 local function updateDrag(input)
-	local delta=input.Position-dragStart
-	MainUI.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
+	local delta = input.Position - dragStart
+	MainUI.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
 
 MainUI.InputBegan:Connect(function(input)
-	if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
-		dragging=true
-		dragStart=input.Position
-		startPos=MainUI.Position
-		dragInput=input
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = MainUI.Position
+		dragInput = input
 	end
 end)
 
 MainUI.InputChanged:Connect(function(input)
-	if input==dragInput then
+	if input == dragInput then
 		updateDrag(input)
 	end
 end)
 
 MainUI.InputEnded:Connect(function(input)
-	if input==dragInput then
-		dragging=false
-		dragInput=nil
+	if input == dragInput then
+		dragging = false
+		dragInput = nil
 	end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-	if dragging and input==dragInput then
+	if dragging and input == dragInput then
 		updateDrag(input)
 	end
 end)
 
-local minimized=false
-local originalSize=MainUI.Size
+----------------------------------------------------------
+-- LOGIC ẨN / HIỆN / THU NHỎ
+----------------------------------------------------------
+local minimized = false
+local originalSize = MainUI.Size
 
 Minimize.MouseButton1Click:Connect(function()
 	if not minimized then
-		minimized=true
-		for _,v in ipairs(MainUI:GetChildren()) do
-			if v:IsA("GuiObject") and v~=Close and v~=Minimize then
-				v.Visible=false
+		minimized = true
+		for _, v in ipairs(MainUI:GetChildren()) do
+			if v:IsA("GuiObject") and v ~= Close and v ~= Minimize then
+				v.Visible = false
 			end
 		end
-		TweenService:Create(MainUI,TweenInfo.new(0.25),{Size=UDim2.new(0,60,0,60)}):Play()
-		TweenService:Create(UICorner,TweenInfo.new(0.25),{CornerRadius=UDim.new(1,0)}):Play()
+		TweenService:Create(MainUI, TweenInfo.new(0.25), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+		TweenService:Create(UICorner, TweenInfo.new(0.25), {CornerRadius = UDim.new(1, 0)}):Play()
 	else
-		minimized=false
-		for _,v in ipairs(MainUI:GetChildren()) do
+		minimized = false
+		for _, v in ipairs(MainUI:GetChildren()) do
 			if v:IsA("GuiObject") then
-				v.Visible=true
+				v.Visible = true
 			end
 		end
-		TweenService:Create(MainUI,TweenInfo.new(0.25),{Size=originalSize}):Play()
-		TweenService:Create(UICorner,TweenInfo.new(0.25),{CornerRadius=UDim.new(0,9)}):Play()
+		TweenService:Create(MainUI, TweenInfo.new(0.25), {Size = originalSize}):Play()
+		TweenService:Create(UICorner, TweenInfo.new(0.25), {CornerRadius = UDim.new(0, 9)}):Play()
 	end
 end)
 
 Close.MouseButton1Click:Connect(function()
-	MainUI.Visible=false
+	ScreenGui:Destroy() -- Xóa hẳn GUI thay vì chỉ ẩn để tiết kiệm bộ nhớ
 end)
 
-print("123")
+----------------------------------------------------------
+-- LOGIC MỚI ĐƯỢC CẬP NHẬT (STATS & BUTTONS)
+----------------------------------------------------------
+
+-- 1. Cập nhật Stats (Ping, FPS, Time, Enemy)
+RunService.RenderStepped:Connect(function(step)
+	-- Lấy Ping (ms)
+	local ping = math.floor(player:GetNetworkPing() * 1000)
+	-- Tính FPS
+	local fps = math.floor(1 / step)
+	-- Lấy giờ hiện tại (Format Giờ:Phút:Giây)
+	local date = os.date("*t")
+	local timeStr = string.format("%02d:%02d:%02d", date.hour, date.min, date.sec)
+	-- Đếm số kẻ địch (số player trừ đi chính mình)
+	local enemyCount = #Players:GetPlayers() - 1
+
+	-- Cập nhật Text
+	StatInfo.Text = string.format("Time: %s | FPS: %d | Ping: %d | Enemy: %d", timeStr, fps, ping, enemyCount)
+end)
+
+-- 2. Logic cho nút Walk To Ring
+Walk_To_Ring.MouseButton1Click:Connect(function()
+	print("[DEBUG] Đã nhấn Walk To Ring")
+	-- Thêm code di chuyển nhân vật ở đây
+	-- Ví dụ: game.Players.LocalPlayer.Character.Humanoid:MoveTo(Vector3.new(0, 0, 0))
+end)
+
+-- 3. Logic cho nút Join Queue
+Join_Queue.MouseButton1Click:Connect(function()
+	print("[DEBUG] Đã nhấn Join Queue")
+	-- Thêm code Fire RemoteEvent để vào hàng chờ ở đây
+end)
+
+print("DTL Hub Loaded Successfully!")
