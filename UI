@@ -315,3 +315,5 @@ end)
 Close.MouseButton1Click:Connect(function()
 	MainUI.Visible=false
 end)
+
+print("123")
