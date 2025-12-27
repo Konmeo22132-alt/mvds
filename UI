@@ -1,211 +1,250 @@
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-
-local player = Players.LocalPlayer
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ScreenGui"
-ScreenGui.Parent = player:WaitForChild("PlayerGui")
+-- MainUI (root only, no ScreenGui)
 
 local MainUI = Instance.new("Frame")
-MainUI.BackgroundColor3 = Color3.new(0.0784313753247261,0.0784313753247261,0.0784313753247261)
+MainUI.Name = "MainUI"
+MainUI.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainUI.BackgroundTransparency = 0.5
 MainUI.BorderSizePixel = 0
-MainUI.Position = UDim2.new(0.20768140256404877,0,0.082697294652462,0)
-MainUI.Size = UDim2.new(0,780,0,427)
-MainUI.Name = "MainUI"
-MainUI.Parent = ScreenGui
+MainUI.Position = UDim2.new(0.207681403, 0, 0.0826972947, 0)
+MainUI.Size = UDim2.new(0, 780, 0, 427)
 
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0,9)
 UICorner.Parent = MainUI
 
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.new(0.9215686321258545,0.9215686321258545,0.9215686321258545)
-UIStroke.Thickness = 3.9000000953674316
-UIStroke.Parent = MainUI
-
+-- Line1
 local Line1 = Instance.new("Frame")
-Line1.BackgroundColor3 = UIStroke.Color
-Line1.BorderSizePixel = 0
-Line1.Position = UDim2.new(0,0,0.11431463062763214,0)
-Line1.Size = UDim2.new(0,780,0,2)
 Line1.Name = "Line1"
 Line1.Parent = MainUI
+Line1.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+Line1.BorderSizePixel = 0
+Line1.Position = UDim2.new(0, 0, 0.114314631, 0)
+Line1.Size = UDim2.new(0, 780, 0, 2)
 
+-- Close (X)
 local Close = Instance.new("TextButton")
-Close.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json",Enum.FontWeight.Regular,Enum.FontStyle.Normal)
-Close.Text = "X"
-Close.TextColor3 = Color3.new(1,1,1)
-Close.TextSize = 20
-Close.BackgroundColor3 = Color3.new(0.9764706492424011,0,0.01568627543747425)
-Close.BorderSizePixel = 0
-Close.Position = UDim2.new(0.9537788033485413,0,0.021164020523428917,0)
-Close.Size = UDim2.new(0,25,0,25)
 Close.Name = "Close"
 Close.Parent = MainUI
+Close.BackgroundColor3 = Color3.fromRGB(249, 0, 4)
+Close.BorderSizePixel = 0
+Close.Position = UDim2.new(0.953778803, 0, 0.0211640205, 0)
+Close.Size = UDim2.new(0, 25, 0, 25)
+Close.Text = "X"
+Close.TextSize = 20
+Close.TextColor3 = Color3.fromRGB(255, 255, 255)
+Close.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
 
-local CloseCorner = Instance.new("UICorner")
-CloseCorner.Parent = Close
+Instance.new("UICorner", Close)
 
+-- Minimize (-)
 local Minimize = Instance.new("TextButton")
-Minimize.FontFace = Close.FontFace
-Minimize.Text = "-"
-Minimize.TextColor3 = Color3.new(0,0,0)
-Minimize.TextSize = 50
-Minimize.BackgroundColor3 = Color3.new(1,1,1)
-Minimize.BorderSizePixel = 0
-Minimize.Position = UDim2.new(0.9122737050056458,0,0.021164020523428917,0)
-Minimize.Size = UDim2.new(0,25,0,25)
 Minimize.Name = "Minimize"
 Minimize.Parent = MainUI
+Minimize.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Minimize.BorderSizePixel = 0
+Minimize.Position = UDim2.new(0.912273705, 0, 0.0211640205, 0)
+Minimize.Size = UDim2.new(0, 25, 0, 25)
+Minimize.Text = "-"
+Minimize.TextSize = 50
+Minimize.TextColor3 = Color3.fromRGB(0, 0, 0)
+Minimize.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
 
-local MinCorner = Instance.new("UICorner")
-MinCorner.Parent = Minimize
+Instance.new("UICorner", Minimize)
 
+-- Username (child of Minimize)
 local Username = Instance.new("TextLabel")
-Username.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json",Enum.FontWeight.Bold,Enum.FontStyle.Normal)
-Username.Text = "Welcome Back!"
-Username.TextColor3 = Color3.new(0.32549020648002625,0.7568627595901489,0.9019607901573181)
-Username.TextSize = 22
-Username.TextStrokeColor3 = Username.TextColor3
-Username.BackgroundTransparency = 1
-Username.BorderSizePixel = 0
-Username.Position = UDim2.new(0.02,0,0.02,0)
-Username.Size = UDim2.new(0,220,0,40)
 Username.Name = "Username"
-Username.Parent = MainUI
+Username.Parent = Minimize
+Username.BackgroundTransparency = 1
+Username.Position = UDim2.new(-27.59313, 0, 10.1219053, 0)
+Username.Size = UDim2.new(0, 200, 0, 117)
+Username.Text = "Welcome Back!"
+Username.TextSize = 22
+Username.TextColor3 = Color3.fromRGB(83, 193, 230)
+Username.TextStrokeColor3 = Color3.fromRGB(83, 193, 230)
+Username.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json", Enum.FontWeight.Bold)
 
-local UIGradient = Instance.new("UIGradient")
-UIGradient.Parent = Username
+Instance.new("UIGradient", Username)
 
+-- Title
 local Title = Instance.new("TextLabel")
-Title.FontFace = Font.new("rbxasset://fonts/families/Arial.json",Enum.FontWeight.Bold,Enum.FontStyle.Normal)
-Title.Text = "DTL HUB - MVDS SCRIPT AUTO FARM STREAK"
-Title.TextColor3 = Username.TextColor3
-Title.TextSize = 15
-Title.BackgroundTransparency = 1
-Title.BorderSizePixel = 0
-Title.Position = UDim2.new(0.07479224354028702,0,0,0)
-Title.Size = UDim2.new(0,228,0,40)
 Title.Name = "Title"
 Title.Parent = MainUI
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0.0747922435, 0, 0, 0)
+Title.Size = UDim2.new(0, 228, 0, 40)
+Title.Text = "DTL HUB - MVDS SCRIPT AUTO FARM STREAK"
+Title.TextSize = 15
+Title.TextColor3 = Color3.fromRGB(83, 193, 230)
+Title.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold)
 
+-- Streak
+local Streak = Instance.new("Frame")
+Streak.Name = "Streak"
+Streak.Parent = MainUI
+Streak.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Streak.BackgroundTransparency = 0.35
+Streak.BorderSizePixel = 0
+Streak.Position = UDim2.new(0.335180044, 0, 0.150793642, 0)
+Streak.Size = UDim2.new(0, 507, 0, 103)
+
+local StreakCorner = Instance.new("UICorner")
+StreakCorner.CornerRadius = UDim.new(0, 9)
+StreakCorner.Parent = Streak
+
+local StreakTitle = Instance.new("TextLabel")
+StreakTitle.Name = "Steak_Title"
+StreakTitle.Parent = Streak
+StreakTitle.BackgroundTransparency = 1
+StreakTitle.Position = UDim2.new(-0.116129033, 0, -0.0582524277, 0)
+StreakTitle.Size = UDim2.new(0, 207, 0, 57)
+StreakTitle.Text = "STREAK"
+StreakTitle.TextSize = 24
+StreakTitle.TextColor3 = Color3.fromRGB(0, 0, 0)
+StreakTitle.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold)
+
+local CurrentStreak = Instance.new("TextLabel")
+CurrentStreak.Name = "Current_Streak"
+CurrentStreak.Parent = Streak
+CurrentStreak.BackgroundTransparency = 1
+CurrentStreak.Position = UDim2.new(0.0387096778, 0, 0.339805812, 0)
+CurrentStreak.Size = UDim2.new(0, 200, 0, 50)
+CurrentStreak.Text = "Current Steak: {streak_count}"
+CurrentStreak.TextSize = 17
+CurrentStreak.TextColor3 = Color3.fromRGB(0, 0, 0)
+CurrentStreak.FontFace = Font.new("rbxasset://fonts/families/Arial.json")
+
+-- Stat
+local Stat = Instance.new("Frame")
+Stat.Name = "Stat"
+Stat.Parent = MainUI
+Stat.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Stat.BackgroundTransparency = 0.35
+Stat.BorderSizePixel = 0
+Stat.Position = UDim2.new(0.335180044, 0, 0.436291009, 0)
+Stat.Size = UDim2.new(0, 507, 0, 103)
+
+local StatCorner = Instance.new("UICorner")
+StatCorner.CornerRadius = UDim.new(0, 9)
+StatCorner.Parent = Stat
+
+local StatTitle = Instance.new("TextLabel")
+StatTitle.Name = "Stat"
+StatTitle.Parent = Stat
+StatTitle.BackgroundTransparency = 1
+StatTitle.Position = UDim2.new(-0.116129033, 0, -0.0582524277, 0)
+StatTitle.Size = UDim2.new(0, 207, 0, 57)
+StatTitle.Text = "Status"
+StatTitle.TextSize = 24
+StatTitle.TextColor3 = Color3.fromRGB(0, 0, 0)
+StatTitle.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold)
+
+local StatInfo = Instance.new("TextLabel")
+StatInfo.Name = "Current_Streak"
+StatInfo.Parent = Stat
+StatInfo.BackgroundTransparency = 1
+StatInfo.Position = UDim2.new(0.284962296, 0, 0.252427191, 0)
+StatInfo.Size = UDim2.new(0, 200, 0, 50)
+StatInfo.Text = "Client time: {Time} | FPS: {fps} | Ping: {Ping} | Enemy: {Enemy}"
+StatInfo.TextSize = 17
+StatInfo.TextColor3 = Color3.fromRGB(0, 0, 0)
+StatInfo.FontFace = Font.new("rbxasset://fonts/families/Arial.json")
+
+-- Line2
 local Line2 = Instance.new("Frame")
-Line2.BackgroundColor3 = UIStroke.Color
-Line2.BorderSizePixel = 0
-Line2.Position = UDim2.new(0.31163424253463745,0,0.11431470513343811,0)
-Line2.Size = UDim2.new(0,1,0,378)
 Line2.Name = "Line2"
 Line2.Parent = MainUI
+Line2.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+Line2.BorderSizePixel = 0
+Line2.Position = UDim2.new(0.311634243, 0, 0.114314705, 0)
+Line2.Size = UDim2.new(0, 1, 0, 378)
 
+-- Profile
 local Profile = Instance.new("Frame")
-Profile.BackgroundColor3 = Color3.new(1,1,1)
-Profile.BackgroundTransparency = 0.3499999940395355
-Profile.BorderSizePixel = 0
-Profile.Position = UDim2.new(0.019390596076846123,0,0.1507936418056488,0)
-Profile.Size = UDim2.new(0,214,0,218)
 Profile.Name = "Profile"
 Profile.Parent = MainUI
+Profile.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Profile.BackgroundTransparency = 0.35
+Profile.BorderSizePixel = 0
+Profile.Position = UDim2.new(0.0193905961, 0, 0.150793642, 0)
+Profile.Size = UDim2.new(0, 214, 0, 218)
 
 local ProfileCorner = Instance.new("UICorner")
-ProfileCorner.CornerRadius = UDim.new(0,9)
+ProfileCorner.CornerRadius = UDim.new(0, 9)
 ProfileCorner.Parent = Profile
 
-local Avatar = Instance.new("ImageLabel")
-Avatar.BackgroundTransparency = 1
-Avatar.Size = UDim2.new(1,-20,1,-60)
-Avatar.Position = UDim2.new(0,10,0,10)
-Avatar.Parent = Profile
-
-local AvatarCorner = Instance.new("UICorner")
-AvatarCorner.CornerRadius = UDim.new(0,12)
-AvatarCorner.Parent = Avatar
-
-Avatar.Image = Players:GetUserThumbnailAsync(
-	player.UserId,
-	Enum.ThumbnailType.HeadShot,
-	Enum.ThumbnailSize.Size420x420
-)
-
+-- Welcome
 local Welcome = Instance.new("TextLabel")
-Welcome.FontFace = Username.FontFace
-Welcome.Text = "@" .. player.Name
-Welcome.TextColor3 = Username.TextColor3
-Welcome.TextStrokeColor3 = Username.TextColor3
-Welcome.TextSize = 22
-Welcome.BackgroundTransparency = 1
-Welcome.BorderSizePixel = 0
-Welcome.Position = UDim2.new(0.027129070833325386,0,0.708777904510498,0)
-Welcome.Size = UDim2.new(0,200,0,103)
 Welcome.Name = "Welcome"
-Welcome.Parent = Profile
+Welcome.Parent = MainUI
+Welcome.BackgroundTransparency = 1
+Welcome.Position = UDim2.new(0.0271290708, 0, 0.708777905, 0)
+Welcome.Size = UDim2.new(0, 200, 0, 103)
+Welcome.Text = "@{username}"
+Welcome.TextSize = 22
+Welcome.TextColor3 = Color3.fromRGB(83, 193, 230)
+Welcome.TextStrokeColor3 = Color3.fromRGB(83, 193, 230)
+Welcome.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json", Enum.FontWeight.Bold)
 
+-- Line3
 local Line3 = Instance.new("Frame")
-Line3.BackgroundColor3 = UIStroke.Color
-Line3.BorderSizePixel = 0
-Line3.Position = UDim2.new(0.31163421273231506,0,0.7138463258743286,0)
-Line3.Size = UDim2.new(0,536,0,2)
 Line3.Name = "Line3"
 Line3.Parent = MainUI
+Line3.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+Line3.BorderSizePixel = 0
+Line3.Position = UDim2.new(0.311634213, 0, 0.713846326, 0)
+Line3.Size = UDim2.new(0, 536, 0, 2)
 
-local dragging = false
-local dragStart
-local startPos
+-- Settings
+local Settings = Instance.new("Frame")
+Settings.Name = "Settings"
+Settings.Parent = MainUI
+Settings.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Settings.BackgroundTransparency = 0.35
+Settings.BorderSizePixel = 0
+Settings.Position = UDim2.new(0.335180044, 0, 0.738398731, 0)
+Settings.Size = UDim2.new(0, 507, 0, 103)
 
-MainUI.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = MainUI.Position
-	end
-end)
+local SettingsCorner = Instance.new("UICorner")
+SettingsCorner.CornerRadius = UDim.new(0, 9)
+SettingsCorner.Parent = Settings
 
-MainUI.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = false
-	end
-end)
+local SettingsTitle = Instance.new("TextLabel")
+SettingsTitle.Name = "Stat"
+SettingsTitle.Parent = Settings
+SettingsTitle.BackgroundTransparency = 1
+SettingsTitle.Position = UDim2.new(0.288210183, 0, -0.106796116, 0)
+SettingsTitle.Size = UDim2.new(0, 207, 0, 57)
+SettingsTitle.Text = "Settings"
+SettingsTitle.TextSize = 24
+SettingsTitle.TextColor3 = Color3.fromRGB(0, 0, 0)
+SettingsTitle.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold)
 
-UserInputService.InputChanged:Connect(function(input)
-	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-		local delta = input.Position - dragStart
-		MainUI.Position = UDim2.new(
-			startPos.X.Scale,
-			startPos.X.Offset + delta.X,
-			startPos.Y.Scale,
-			startPos.Y.Offset + delta.Y
-		)
-	end
-end)
+local WalkToRing = Instance.new("TextButton")
+WalkToRing.Name = "Walk_To_Ring"
+WalkToRing.Parent = Settings
+WalkToRing.BorderSizePixel = 0
+WalkToRing.Position = UDim2.new(0.0473372787, 0, 0.330097079, 0)
+WalkToRing.Size = UDim2.new(0, 200, 0, 50)
+WalkToRing.Text = "Walk To Ring"
+WalkToRing.TextSize = 14
+WalkToRing.TextColor3 = Color3.fromRGB(0, 0, 0)
+WalkToRing.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+WalkToRing.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
 
-local isMinimized = false
-local originalSize = MainUI.Size
+Instance.new("UICorner", WalkToRing)
 
-Minimize.MouseButton1Click:Connect(function()
-	local info = TweenInfo.new(0.35,Enum.EasingStyle.Quad,Enum.EasingDirection.Out)
-	if not isMinimized then
-		isMinimized = true
-		for _,v in ipairs(MainUI:GetChildren()) do
-			if v:IsA("GuiObject") and v ~= Minimize and v ~= Close then
-				v.Visible = false
-			end
-		end
-		TweenService:Create(MainUI,info,{Size = UDim2.new(0,60,0,60)}):Play()
-		TweenService:Create(UICorner,info,{CornerRadius = UDim.new(1,0)}):Play()
-	else
-		isMinimized = false
-		for _,v in ipairs(MainUI:GetChildren()) do
-			if v:IsA("GuiObject") then
-				v.Visible = true
-			end
-		end
-		TweenService:Create(MainUI,info,{Size = originalSize}):Play()
-		TweenService:Create(UICorner,info,{CornerRadius = UDim.new(0,9)}):Play()
-	end
-end)
+local JoinQueue = Instance.new("TextButton")
+JoinQueue.Name = "Join Queue"
+JoinQueue.Parent = Settings
+JoinQueue.BorderSizePixel = 0
+JoinQueue.Position = UDim2.new(0.556213021, 0, 0.330097079, 0)
+JoinQueue.Size = UDim2.new(0, 200, 0, 50)
+JoinQueue.Text = "Join Queue"
+JoinQueue.TextSize = 14
+JoinQueue.TextColor3 = Color3.fromRGB(0, 0, 0)
+JoinQueue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+JoinQueue.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
 
-Close.MouseButton1Click:Connect(function()
-	MainUI.Visible = false
-end)
+Instance.new("UICorner", JoinQueue)
+
+return MainUI
