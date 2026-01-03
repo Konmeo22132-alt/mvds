@@ -1,0 +1,1303 @@
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PathfindingService = game:GetService("PathfindingService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local CoreGui = game:GetService("CoreGui")
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local Mouse = LocalPlayer:GetMouse()
+
+getgenv().LastShotTime = 0
+getgenv().UsedLoopKillRound = false
+
+if getgenv().DTL_Cleanup then
+    getgenv().DTL_Cleanup()
+end
+
+local DTL_Connections = {}
+local DTL_Drawings = {}
+local DTL_UI_Instance = nil
+
+getgenv().DTL_Cleanup = function()
+    for _, connection in pairs(DTL_Connections) do
+        if connection then
+            connection:Disconnect()
+        end
+    end
+    table.clear(DTL_Connections)
+
+    for _, drawing in pairs(DTL_Drawings) do
+        if drawing and drawing.Remove then
+            pcall(function()
+                drawing.Visible = false
+                drawing:Remove()
+            end)
+        end
+    end
+    table.clear(DTL_Drawings)
+
+    if DTL_UI_Instance then
+        DTL_UI_Instance:Destroy()
+    end
+    
+    local oldUI = Players.LocalPlayer.PlayerGui:FindFirstChild("DTLHub_UI")
+    if oldUI then
+        oldUI:Destroy()
+    end
+    
+    local intro = Players.LocalPlayer.PlayerGui:FindFirstChild("DTLIntro")
+    if intro then
+        intro:Destroy()
+    end
+
+    getgenv().DTL_Cleanup = nil
+    getgenv().DTLHub_Running = false
+end
+
+getgenv().DTLHub_Running = true
+
+local function RunIntro()
+    if LocalPlayer.PlayerGui:FindFirstChild("DTLIntro") then
+        LocalPlayer.PlayerGui.DTLIntro:Destroy()
+    end
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "DTLIntro"
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    ScreenGui.IgnoreGuiInset = true 
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    local Background = Instance.new("Frame")
+    Background.Name = "FullBackground"
+    Background.Parent = ScreenGui
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.Position = UDim2.new(0, 0, 0, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(20, 20, 20) 
+    Background.BackgroundTransparency = 0.4 
+    Background.BorderSizePixel = 0
+
+    local MainLabel = Instance.new("TextLabel")
+    MainLabel.Name = "MainTitle"
+    MainLabel.Parent = ScreenGui 
+    MainLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    MainLabel.Position = UDim2.new(0.5, 0, 0.45, 0)
+    MainLabel.Size = UDim2.new(0, 0, 0, 60)
+    MainLabel.BackgroundTransparency = 1
+    MainLabel.Font = Enum.Font.GothamBlack 
+    MainLabel.TextColor3 = Color3.fromRGB(255, 255, 255) 
+    MainLabel.TextSize = 55
+    MainLabel.Text = "" 
+    MainLabel.AutomaticSize = Enum.AutomaticSize.X 
+    MainLabel.ZIndex = 2 
+    MainLabel.TextStrokeTransparency = 1 
+
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Parent = MainLabel
+    Gradient.Rotation = 90
+    Gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromHex("53C1E6")), 
+        ColorSequenceKeypoint.new(1, Color3.fromHex("A1C6D7"))  
+    }
+
+    local SubLabel = Instance.new("TextLabel")
+    SubLabel.Name = "SubTitle"
+    SubLabel.Parent = ScreenGui
+    SubLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+    SubLabel.Position = UDim2.new(0.5, 0, 0.53, 0) 
+    SubLabel.Size = UDim2.new(0, 0, 0, 30)
+    SubLabel.BackgroundTransparency = 1
+    SubLabel.Font = Enum.Font.GothamMedium
+    SubLabel.TextColor3 = Color3.fromRGB(160, 160, 255) 
+    SubLabel.TextSize = 22
+    SubLabel.Text = "discord.gg/Mnu4V7HfS"
+    SubLabel.TextTransparency = 1 
+    SubLabel.ZIndex = 2
+    SubLabel.TextStrokeTransparency = 1
+
+    local targetText = "D T L  H u b"
+    local symbols = {"ア", "イ", "ウ", "エ", "オ", "カ", "キ", "ク", "ケ", "コ", "サ", "シ", "ス", "セ", "ソ", "タ", "チ", "ツ", "テ", "ト", "ナ", "ニ", "ヌ", "ネ", "ノ", "ハ", "ヒ", "フ", "ヘ", "ホ", "マ", "ミ", "ム", "メ", "モ", "ヤ", "ユ", "ヨ", "ラ", "リ", "ル", "レ", "ロ", "ワ", "ヲ", "ン"}
+    
+    for i = 1, #targetText do
+        local actualChar = string.sub(targetText, i, i)
+        if actualChar == " " then
+            MainLabel.Text = MainLabel.Text .. " "
+        else
+            for k = 1, 5 do 
+                local randomSymbol = symbols[math.random(1, #symbols)]
+                MainLabel.Text = string.sub(targetText, 1, i - 1) .. randomSymbol
+                task.wait(0.015)
+            end
+            MainLabel.Text = string.sub(targetText, 1, i)
+        end
+    end
+
+    task.wait(0.2)
+    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(SubLabel, tweenInfo, {TextTransparency = 0}):Play()
+    task.wait(1.5)
+
+    local fadeOutInfo = TweenInfo.new(0.8)
+    TweenService:Create(MainLabel, fadeOutInfo, {TextTransparency = 1}):Play()
+    TweenService:Create(SubLabel, fadeOutInfo, {TextTransparency = 1}):Play()
+    local bgTween = TweenService:Create(Background, fadeOutInfo, {BackgroundTransparency = 1})
+    bgTween:Play()
+
+    bgTween.Completed:Wait()
+    ScreenGui:Destroy()
+end
+
+RunIntro()
+
+local oldGui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("DTLHub_UI")
+if oldGui then
+    oldGui:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DTLHub_UI"
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+DTL_UI_Instance = ScreenGui 
+
+local MainUI = Instance.new("Frame")
+MainUI.Name = "MainUI"
+MainUI.Parent = ScreenGui
+MainUI.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainUI.BackgroundTransparency = 0.5
+MainUI.BorderSizePixel = 0
+MainUI.AnchorPoint = Vector2.new(0.5, 0.5) 
+MainUI.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainUI.Size = UDim2.new(0, 0, 0, 0) 
+MainUI.Active = true 
+MainUI.ClipsDescendants = true
+
+local FullSize = UDim2.new(0, 780, 0, 427) 
+local MiniSize = UDim2.new(0, 50, 0, 50) 
+local CenterPosition = UDim2.new(0.5, 0, 0.5, 0)
+local LastDragPosition = UDim2.new(0.5, 0, 0.5, 0)
+
+local UICorner = Instance.new("UICorner")
+UICorner.Parent = MainUI
+UICorner.CornerRadius = UDim.new(0, 9)
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Parent = MainUI
+UIStroke.Color = Color3.fromRGB(235, 235, 235)
+UIStroke.Thickness = 3
+
+local Line1 = Instance.new("Frame")
+Line1.Name = "Line1"
+Line1.Parent = MainUI
+Line1.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+Line1.BorderSizePixel = 0
+Line1.Position = UDim2.new(0, 0, 0.114314631, 0)
+Line1.Size = UDim2.new(0, 780, 0, 2)
+
+local Close = Instance.new("TextButton")
+Close.Name = "Close"
+Close.Parent = MainUI
+Close.BackgroundColor3 = Color3.fromRGB(249, 0, 4)
+Close.BorderSizePixel = 0
+Close.Position = UDim2.new(0.953778803, 0, 0.0211640205, 0)
+Close.Size = UDim2.new(0, 25, 0, 25)
+Close.Text = "X"
+Close.TextSize = 20
+Close.TextColor3 = Color3.fromRGB(255, 255, 255)
+Close.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+Instance.new("UICorner", Close)
+
+local Minimize = Instance.new("TextButton")
+Minimize.Name = "Minimize"
+Minimize.Parent = MainUI
+Minimize.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Minimize.BorderSizePixel = 0
+Minimize.Position = UDim2.new(0.912273705, 0, 0.0211640205, 0)
+Minimize.Size = UDim2.new(0, 25, 0, 25)
+Minimize.Text = "-"
+Minimize.TextSize = 50
+Minimize.TextColor3 = Color3.fromRGB(0, 0, 0)
+Minimize.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+Instance.new("UICorner", Minimize)
+
+local Username = Instance.new("TextLabel")
+Username.Name = "Username"
+Username.Parent = Minimize
+Username.BackgroundTransparency = 1
+Username.Position = UDim2.new(-27.59313, 0, 10.1219053, 0)
+Username.Size = UDim2.new(0, 200, 0, 117)
+Username.Text = "Welcome Back!"
+Username.TextSize = 22
+Username.TextColor3 = Color3.fromRGB(83, 193, 230)
+Username.TextStrokeColor3 = Color3.fromRGB(83, 193, 230)
+Username.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json", Enum.FontWeight.Bold)
+Instance.new("UIGradient", Username)
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Parent = MainUI
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0.0747922435, 0, 0, 0)
+Title.Size = UDim2.new(0, 228, 0, 40)
+Title.Text = "DTL HUB - AUTO HOP & TACTICAL AI"
+Title.TextSize = 15
+Title.TextColor3 = Color3.fromRGB(83, 193, 230)
+Title.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold)
+
+local Streak = Instance.new("Frame")
+Streak.Name = "Streak"
+Streak.Parent = MainUI
+Streak.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Streak.BackgroundTransparency = 0.35
+Streak.BorderSizePixel = 0
+Streak.Position = UDim2.new(0.335180044, 0, 0.150793642, 0)
+Streak.Size = UDim2.new(0, 507, 0, 103)
+Instance.new("UICorner", Streak).CornerRadius = UDim.new(0, 9)
+
+local StreakTitle = Instance.new("TextLabel")
+StreakTitle.Name = "Streak_Title"
+StreakTitle.Parent = Streak
+StreakTitle.BackgroundTransparency = 1
+StreakTitle.Position = UDim2.new(-0.116129033, 0, -0.0582524277, 0)
+StreakTitle.Size = UDim2.new(0, 207, 0, 57)
+StreakTitle.Text = "STREAK"
+StreakTitle.TextSize = 24
+StreakTitle.TextColor3 = Color3.fromRGB(0, 0, 0)
+StreakTitle.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold)
+
+local CurrentStreak = Instance.new("TextLabel")
+CurrentStreak.Name = "Current_Streak_Val"
+CurrentStreak.Parent = Streak
+CurrentStreak.BackgroundTransparency = 1
+CurrentStreak.Position = UDim2.new(0.0387096778, 0, 0.339805812, 0)
+CurrentStreak.Size = UDim2.new(0, 200, 0, 50)
+CurrentStreak.Text = "Current Streak: Finding..."
+CurrentStreak.TextSize = 17
+CurrentStreak.TextColor3 = Color3.fromRGB(0, 0, 0)
+CurrentStreak.FontFace = Font.new("rbxasset://fonts/families/Arial.json")
+
+task.spawn(function()
+    local realStreakLabel = nil
+    while not realStreakLabel and getgenv().DTLHub_Running do
+        local success, result = pcall(function()
+            return LocalPlayer.PlayerGui.Profile.Frame.Frame.Frame.BodyFrame.CareerFrame.Frame.StreakFrame.StreakFrame.StreakTextLabel
+        end)
+        
+        if success and result then
+            realStreakLabel = result
+        else
+            task.wait(1)
+        end
+    end
+
+    if realStreakLabel and getgenv().DTLHub_Running then
+        CurrentStreak.Text = "Current Streak: " .. realStreakLabel.Text
+        local streakConn = realStreakLabel:GetPropertyChangedSignal("Text"):Connect(function()
+            CurrentStreak.Text = "Current Streak: " .. realStreakLabel.Text
+        end)
+        table.insert(DTL_Connections, streakConn)
+    end
+end)
+
+local Stat = Instance.new("Frame")
+Stat.Name = "Stat"
+Stat.Parent = MainUI
+Stat.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Stat.BackgroundTransparency = 0.35
+Stat.BorderSizePixel = 0
+Stat.Position = UDim2.new(0.335180044, 0, 0.436291009, 0)
+Stat.Size = UDim2.new(0, 507, 0, 103)
+Instance.new("UICorner", Stat).CornerRadius = UDim.new(0, 9)
+
+local StatTitle = Instance.new("TextLabel")
+StatTitle.Parent = Stat
+StatTitle.BackgroundTransparency = 1
+StatTitle.Position = UDim2.new(-0.116129033, 0, -0.0582524277, 0)
+StatTitle.Size = UDim2.new(0, 207, 0, 57)
+StatTitle.Text = "Status"
+StatTitle.TextSize = 24
+StatTitle.TextColor3 = Color3.fromRGB(0, 0, 0)
+StatTitle.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold)
+
+local StatInfo = Instance.new("TextLabel")
+StatInfo.Name = "StatInfo_Label"
+StatInfo.Parent = Stat
+StatInfo.BackgroundTransparency = 1
+StatInfo.Position = UDim2.new(0.284962296, 0, 0.252427191, 0)
+StatInfo.Size = UDim2.new(0, 200, 0, 50)
+StatInfo.Text = "Loading Stats..."
+StatInfo.TextSize = 16
+StatInfo.TextColor3 = Color3.fromRGB(0, 0, 0)
+StatInfo.FontFace = Font.new("rbxasset://fonts/families/Arial.json")
+StatInfo.TextXAlignment = Enum.TextXAlignment.Left
+
+local Line2 = Instance.new("Frame")
+Line2.Name = "Line2"
+Line2.Parent = MainUI
+Line2.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+Line2.BorderSizePixel = 0
+Line2.Position = UDim2.new(0.311634243, 0, 0.114314705, 0)
+Line2.Size = UDim2.new(0, 1, 0, 378)
+
+local Profile = Instance.new("Frame")
+Profile.Name = "Profile"
+Profile.Parent = MainUI
+Profile.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Profile.BackgroundTransparency = 0.35
+Profile.BorderSizePixel = 0
+Profile.Position = UDim2.new(0.0193905961, 0, 0.150793642, 0)
+Profile.Size = UDim2.new(0, 214, 0, 218)
+Instance.new("UICorner", Profile).CornerRadius = UDim.new(0, 9)
+
+local Avatar = Instance.new("ImageLabel")
+Avatar.Parent = Profile
+Avatar.BackgroundTransparency = 1
+Avatar.Size = UDim2.new(1, -20, 1, -20)
+Avatar.Position = UDim2.new(0, 10, 0, 10)
+Instance.new("UICorner", Avatar)
+Avatar.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+
+local Welcome = Instance.new("TextLabel")
+Welcome.Name = "Welcome"
+Welcome.Parent = MainUI
+Welcome.BackgroundTransparency = 1
+Welcome.Position = UDim2.new(0.0271290708, 0, 0.708777905, 0)
+Welcome.Size = UDim2.new(0, 200, 0, 103)
+Welcome.Text = "@" .. LocalPlayer.Name
+Welcome.TextSize = 22
+Welcome.TextColor3 = Color3.fromRGB(83, 193, 230)
+Welcome.TextStrokeColor3 = Color3.fromRGB(83, 193, 230)
+Welcome.FontFace = Font.new("rbxasset://fonts/families/LuckiestGuy.json", Enum.FontWeight.Bold)
+
+local Line3 = Instance.new("Frame")
+Line3.Name = "Line3"
+Line3.Parent = MainUI
+Line3.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+Line3.BorderSizePixel = 0
+Line3.Position = UDim2.new(0.311634213, 0, 0.713846326, 0)
+Line3.Size = UDim2.new(0, 536, 0, 2)
+
+local Settings = Instance.new("Frame")
+Settings.Name = "Settings"
+Settings.Parent = MainUI
+Settings.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Settings.BackgroundTransparency = 0.35
+Settings.BorderSizePixel = 0
+Settings.Position = UDim2.new(0.335180044, 0, 0.738398731, 0)
+Settings.Size = UDim2.new(0, 507, 0, 103)
+Instance.new("UICorner", Settings).CornerRadius = UDim.new(0, 9)
+
+local SettingsTitle = Instance.new("TextLabel")
+SettingsTitle.Name = "SettingsTitle"
+SettingsTitle.Parent = Settings
+SettingsTitle.BackgroundTransparency = 1
+SettingsTitle.Position = UDim2.new(0.288210183, 0, -0.106796116, 0)
+SettingsTitle.Size = UDim2.new(0, 207, 0, 57)
+SettingsTitle.Text = "Settings"
+SettingsTitle.TextSize = 24
+SettingsTitle.TextColor3 = Color3.fromRGB(0, 0, 0)
+SettingsTitle.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold)
+
+local WalkToRing = Instance.new("TextButton")
+WalkToRing.Name = "Walk_To_Ring"
+WalkToRing.Parent = Settings
+WalkToRing.BorderSizePixel = 0
+WalkToRing.Position = UDim2.new(0.0473372787, 0, 0.330097079, 0)
+WalkToRing.Size = UDim2.new(0, 200, 0, 50)
+WalkToRing.Text = "Auto Queue: ON"
+WalkToRing.TextSize = 14
+WalkToRing.TextColor3 = Color3.fromRGB(0, 0, 0)
+WalkToRing.BackgroundColor3 = Color3.fromRGB(170, 255, 127)
+WalkToRing.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+Instance.new("UICorner", WalkToRing)
+
+local JoinQueue = Instance.new("TextButton")
+JoinQueue.Name = "Join Queue"
+JoinQueue.Parent = Settings
+JoinQueue.BorderSizePixel = 0
+JoinQueue.Position = UDim2.new(0.556213021, 0, 0.330097079, 0)
+JoinQueue.Size = UDim2.new(0, 200, 0, 50)
+JoinQueue.Text = "Manual Queue"
+JoinQueue.TextSize = 14
+JoinQueue.TextColor3 = Color3.fromRGB(0, 0, 0)
+JoinQueue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+JoinQueue.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+Instance.new("UICorner", JoinQueue)
+
+local ACTIVE_COLOR = Color3.fromRGB(170, 255, 127)
+local DEFAULT_COLOR = Color3.fromRGB(255, 255, 255)
+
+local function saveSetting(modeName)
+    if writefile then
+        writefile("DTLhub.txt", modeName)
+        print(modeName)
+    end
+end
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function updateDrag(input)
+    local delta = input.Position - dragStart
+    local newPosition = UDim2.new(
+        startPos.X.Scale, startPos.X.Offset + delta.X,
+        startPos.Y.Scale, startPos.Y.Offset + delta.Y
+    )
+    MainUI.Position = newPosition
+    LastDragPosition = newPosition 
+end
+
+MainUI.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainUI.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+MainUI.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateDrag(input)
+    end
+end)
+
+local minimized = false
+Minimize.MouseButton1Click:Connect(function()
+    if not minimized then
+        minimized = true
+        for _, v in ipairs(MainUI:GetChildren()) do
+            if v:IsA("GuiObject") and v ~= Minimize then
+                v.Visible = false
+            end
+        end
+        Minimize.Text = "+"
+        Minimize.TextSize = 30
+        Minimize.Position = UDim2.new(0.5, -12, 0.5, -12)
+
+        TweenService:Create(MainUI, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = MiniSize,
+            Position = LastDragPosition
+        }):Play()
+        TweenService:Create(UICorner, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            CornerRadius = UDim.new(1, 0)
+        }):Play()
+    else
+        minimized = false
+        Minimize.Text = "-"
+        Minimize.TextSize = 50
+        Minimize.Position = UDim2.new(0.912, 0, 0.021, 0)
+
+        TweenService:Create(MainUI, TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
+            Size = FullSize,
+            Position = CenterPosition
+        }):Play()
+        TweenService:Create(UICorner, TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
+            CornerRadius = UDim.new(0, 9)
+        }):Play()
+
+        task.delay(0.15, function()
+            if not minimized then
+                for _, v in ipairs(MainUI:GetChildren()) do
+                    if v:IsA("GuiObject") then
+                        v.Visible = true
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+Close.MouseButton1Click:Connect(function()
+    if getgenv().DTL_Cleanup then
+        getgenv().DTL_Cleanup()
+    end
+end)
+
+local uiLoop = RunService.RenderStepped:Connect(function(step)
+    local ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
+    local fps = math.floor(1 / step)
+    local timeStr = os.date("%H:%M:%S")
+    local enemyCount = #Players:GetPlayers() - 1
+    
+    StatInfo.Text = string.format("Client Time: %s | FPS: %d | Ping: %d | Enemy: %d", timeStr, fps, ping, enemyCount)
+end)
+table.insert(DTL_Connections, uiLoop) 
+
+WalkToRing.MouseButton1Click:Connect(function()
+    WalkToRing.BackgroundColor3 = ACTIVE_COLOR
+    JoinQueue.BackgroundColor3 = DEFAULT_COLOR
+    saveSetting("WalkToRing")
+end)
+
+JoinQueue.MouseButton1Click:Connect(function()
+    WalkToRing.BackgroundColor3 = DEFAULT_COLOR
+    JoinQueue.BackgroundColor3 = ACTIVE_COLOR
+    saveSetting("JoinQueue")
+end)
+
+TweenService:Create(MainUI, TweenInfo.new(0.8, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
+    Size = FullSize
+}):Play()
+
+local function moveTo(position)
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local humanoid = char:WaitForChild("Humanoid", 10)
+    if humanoid then
+        humanoid:MoveTo(position)
+    end
+end
+
+local function isPadPhysicallyOccupied(padPart)
+    if not padPart then return false end
+    
+    local params = OverlapParams.new()
+    params.FilterDescendantsInstances = {LocalPlayer.Character}
+    params.FilterType = Enum.RaycastFilterType.Blacklist
+    
+    local parts = Workspace:GetPartsInPart(padPart, params)
+    
+    for _, part in ipairs(parts) do
+        local model = part.Parent
+        if model and model:FindFirstChild("Humanoid") then
+            return true
+        end
+    end
+    return false
+end
+
+local function scanAndQueue()
+    StatInfo.Text = "Status: Scanning All DuelRing_1v1 Folders..."
+    local lobby = Workspace:FindFirstChild("Lobby")
+    if not lobby then return end
+
+    local groups = {}
+    for _, child in ipairs(lobby:GetChildren()) do
+        if string.find(child.Name, "DuelRingsGroup") then
+            table.insert(groups, child)
+        end
+    end
+
+    local bestTarget = nil
+    local foundMatch = false
+
+    for _, group in ipairs(groups) do
+        if foundMatch then break end
+
+        local ringFolder = group:FindFirstChild("DuelRing_1v1")
+        if ringFolder then
+            local pads = {}
+            for _, child in ipairs(ringFolder:GetChildren()) do
+                if child.Name == "DuelPad" then
+                    table.insert(pads, child)
+                end
+            end
+
+            if #pads == 2 then
+                local pad1 = pads[1]
+                local pad2 = pads[2]
+                
+                local pad1Part = pad1:FindFirstChild("Pad")
+                local pad2Part = pad2:FindFirstChild("Pad")
+                
+                local target1 = pad1:FindFirstChild("Ring") and pad1.Ring.Position or (pad1Part and pad1Part.Position)
+                local target2 = pad2:FindFirstChild("Ring") and pad2.Ring.Position or (pad2Part and pad2Part.Position)
+
+                if pad1Part and pad2Part and target1 and target2 then
+                    local occ1 = isPadPhysicallyOccupied(pad1Part)
+                    local occ2 = isPadPhysicallyOccupied(pad2Part)
+
+                    if occ1 and not occ2 then
+                        StatInfo.Text = "Status: Found Player at Pad 1 -> Joining Pad 2"
+                        moveTo(target2)
+                        foundMatch = true
+                        return
+                    end
+
+                    if occ2 and not occ1 then
+                        StatInfo.Text = "Status: Found Player at Pad 2 -> Joining Pad 1"
+                        moveTo(target1)
+                        foundMatch = true
+                        return
+                    end
+
+                    if not occ1 and not occ2 and not bestTarget then
+                        bestTarget = target1
+                    end
+                end
+            end
+        end
+    end
+
+    if not foundMatch then
+        if bestTarget then
+            StatInfo.Text = "Status: No Opponent Found -> Hosting Room..."
+            moveTo(bestTarget)
+        else
+            StatInfo.Text = "Status: All Rings Full! Waiting..."
+        end
+    end
+end
+
+local AutoQueueConn = nil
+local function StartQueue()
+    if AutoQueueConn then return end
+    print("Starting Global Smart Queue...")
+    AutoQueueConn = RunService.Heartbeat:Connect(function()
+        local now = tick()
+        if not getgenv().LastScan or now - getgenv().LastScan > 1 then
+            if not LocalPlayer.Team then
+                scanAndQueue()
+            else
+                StatInfo.Text = "Status: In Game"
+            end
+            getgenv().LastScan = now
+        end
+    end)
+    table.insert(DTL_Connections, AutoQueueConn)
+end
+
+local function StopQueue()
+    if AutoQueueConn then
+        AutoQueueConn:Disconnect()
+        AutoQueueConn = nil
+    end
+end
+
+local AutoFireEnabled = false
+local TargetPart = "Head"
+local TeamCheckEnabled = true
+local SilentAimFOV = 120
+local AutoStabRange = 7
+local DetectionMode = "Both"
+local AimbotEnabled = false
+local AimbotSmoothness = 4
+local TriggerBotEnabled = false
+local KillAllEnabled = false
+local AutoStabEnabled = false
+local MAX_DISTANCE = 250
+local vu11 = 0.75
+local vu56 = 2
+local vu490 = nil
+local vu491 = 0
+local vu51 = {}
+local Character
+
+local skeletonParts = {
+    {"Head","UpperTorso"},{"UpperTorso","LowerTorso"},
+    {"UpperTorso","LeftUpperArm"},{"LeftUpperArm","LeftLowerArm"},{"LeftLowerArm","LeftHand"},
+    {"UpperTorso","RightUpperArm"},{"RightUpperArm","RightLowerArm"},{"RightLowerArm","RightHand"},
+    {"LowerTorso","LeftUpperLeg"},{"LeftUpperLeg","LeftLowerLeg"},{"LeftLowerLeg","LeftFoot"},
+    {"LowerTorso","RightUpperLeg"},{"RightUpperLeg","RightLowerLeg"},{"RightLowerLeg","RightFoot"}
+}
+
+local function isOnSameTeam(p252)
+    if TeamCheckEnabled and p252 and LocalPlayer and p252.Team and LocalPlayer.Team then
+        return p252.Team == LocalPlayer.Team
+    end
+    return false
+end
+
+local function isRealEnemy(plr)
+    if not plr or plr == LocalPlayer then return false end
+    local char = plr.Character
+    if not char or not char:IsDescendantOf(workspace) then return false end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hum or not hrp or hum.Health <= 0 then return false end
+    if TeamCheckEnabled and isOnSameTeam(plr) then return false end
+    return true
+end
+
+local function createSkeleton(player)
+    vu51[player] = {}
+    for _ = 1, #skeletonParts do
+        local line = Drawing.new("Line")
+        line.Thickness = 2
+        line.Color = Color3.fromRGB(0,255,0)
+        line.Transparency = 1
+        line.Visible = false
+        table.insert(vu51[player], line)
+        table.insert(DTL_Drawings, line)
+    end
+end
+
+local function clearSkeleton(player)
+    local lines = vu51[player]
+    if lines then
+        for _, line in ipairs(lines) do
+            pcall(function()
+                line.Visible = false
+                line:Remove()
+            end)
+        end
+        vu51[player] = nil
+    end
+end
+
+local EnemyCache = {}
+local EnemyCacheTime = 0
+local ENEMY_CACHE_INTERVAL = 0.25
+
+function scanEnemyPlayers()
+    local now = tick()
+    if now - EnemyCacheTime < ENEMY_CACHE_INTERVAL then return EnemyCache end
+    EnemyCacheTime = now
+    table.clear(EnemyCache)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if isRealEnemy(plr) then
+            table.insert(EnemyCache, plr)
+        end
+    end
+    return EnemyCache
+end
+
+local function updateSkeleton(player)
+    local char = player.Character
+    if not char or not vu51[player] then return end
+    for i, part in ipairs(skeletonParts) do
+        local p1 = char:FindFirstChild(part[1])
+        local p2 = char:FindFirstChild(part[2])
+        local line = vu51[player][i]
+        if p1 and p2 then
+            local p1s, on1 = Camera:WorldToViewportPoint(p1.Position)
+            local p2s, on2 = Camera:WorldToViewportPoint(p2.Position)
+            if on1 and on2 then
+                line.From = Vector2.new(p1s.X,p1s.Y)
+                line.To = Vector2.new(p2s.X,p2s.Y)
+                line.Visible = true
+            else
+                line.Visible = false
+            end
+        else
+            line.Visible = false
+        end
+    end
+end
+
+local function updateESP()
+    local enemies = scanEnemyPlayers()
+    local enemySet = {}
+    for _, plr in ipairs(enemies) do enemySet[plr] = true end
+    
+    for plr,_ in pairs(vu51) do
+        if not enemySet[plr] then clearSkeleton(plr) end
+    end
+    
+    for _, player in ipairs(enemies) do
+        if not vu51[player] then createSkeleton(player) end
+        updateSkeleton(player)
+    end
+end
+
+local removeConn = Players.PlayerRemoving:Connect(function(plr)
+    clearSkeleton(plr)
+end)
+table.insert(DTL_Connections, removeConn)
+
+local function getEquippedWeapon()
+    local char = LocalPlayer.Character
+    if char then return char:FindFirstChildOfClass("Tool") end
+end
+
+local function vu234(type)
+    local backpack = LocalPlayer.Backpack
+    local char = LocalPlayer.Character
+    local current = getEquippedWeapon()
+    if current then current.Parent = backpack end
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            local fire = tool:FindFirstChild("Fire", true)
+            if type == "Gun" and fire then
+                tool.Parent = char
+                return tool
+            end
+        end
+    end
+end
+
+local ShootRemote = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("ShootGun")
+
+local function shootGun(targetCharacter, randomSpread)
+    if not targetCharacter or targetCharacter == LocalPlayer.Character then return end
+    local char = LocalPlayer.Character
+    local part = targetCharacter:FindFirstChild(TargetPart) or targetCharacter:FindFirstChild("Head")
+    if not part then return end
+    local pos = part.Position
+    if randomSpread then
+        pos = pos + Vector3.new((math.random()*2-1) * vu11,(math.random()*2-1) * vu11,(math.random()*2-1) * vu11)
+    end
+    local gun = getEquippedWeapon()
+    if gun and gun:FindFirstChild("Fire", true) then
+        local fireSound = gun:FindFirstChild("Fire", true)
+        if fireSound then fireSound:Play() end
+        local muzzle = gun:FindFirstChild("Muzzle", true)
+        if muzzle then
+            pcall(function()
+                require(ReplicatedStorage.Modules.BulletRenderer)(muzzle.WorldPosition, pos, gun:GetAttribute("BulletType"))
+            end)
+        end
+        gun:Activate()
+        
+        getgenv().LastShotTime = tick()
+    end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if hrp and ShootRemote then
+        ShootRemote:FireServer(hrp.Position, pos, part, pos)
+    end
+end
+
+local function isPlayerInView(p253)
+    if not p253.Character then return false end
+    if not (Character and Character:FindFirstChild("Head")) then return false end
+    local head = p253.Character:FindFirstChild("Head")
+    if not head then return false end
+    local myHead = Character.Head
+    local _, visible = Camera:WorldToScreenPoint(head.Position)
+    if visible then
+        local params = RaycastParams.new()
+        params.FilterType = Enum.RaycastFilterType.Blacklist
+        params.FilterDescendantsInstances = { Character, p253.Character }
+        if not Workspace:Raycast(Camera.CFrame.Position, head.Position - Camera.CFrame.Position, params) then
+            return true
+        end
+    end
+    return false
+end
+
+local function getClosestPlayerToCenter()
+    local bestDist = math.huge
+    local screenCenter = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+    local best = nil
+    local enemies = scanEnemyPlayers()
+    for _,plr in ipairs(enemies) do
+        local head = plr.Character:FindFirstChild("Head")
+        if head then
+            local screenPos, onscreen = Camera:WorldToScreenPoint(head.Position)
+            if onscreen then
+                local dist = (screenCenter - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                if dist < bestDist then
+                    bestDist = dist
+                    best = plr
+                end
+            end
+        end
+    end
+    return best
+end
+
+local function getClosestPlayerToMouse()
+    local fov = SilentAimFOV
+    local mousePos = Vector2.new(Mouse.X, Mouse.Y)
+    local best = nil
+    local enemies = scanEnemyPlayers()
+    for _,plr in ipairs(enemies) do
+        local head = plr.Character:FindFirstChild("Head")
+        if head then
+            local screenPos, onscreen = Camera:WorldToScreenPoint(head.Position)
+            if onscreen then
+                local diff = (mousePos - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                if diff < fov then
+                    best = plr
+                    fov = diff
+                end
+            end
+        end
+    end
+    return best
+end
+
+local function getClosestPlayerInRange()
+    if not Character or not Character:FindFirstChild("HumanoidRootPart") then return nil end
+    local closest = nil
+    local range = AutoStabRange
+    local enemies = scanEnemyPlayers()
+    for _,plr in ipairs(enemies) do
+        local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local dist = (hrp.Position - Character.HumanoidRootPart.Position).Magnitude
+            if dist < range then
+                closest = plr
+                range = dist
+            end
+        end
+    end
+    return closest
+end
+
+function startAimbot()
+    local aimLoop = RunService.RenderStepped:Connect(function()
+        if AimbotEnabled then
+            local target = getClosestPlayerToCenter()
+            local part = target and target.Character and target.Character:FindFirstChild("Head")
+            if part then
+                local targetCF = CFrame.new(Camera.CFrame.Position, part.Position)
+                if AimbotSmoothness <= 0 then
+                    Camera.CFrame = targetCF
+                else
+                    Camera.CFrame = Camera.CFrame:Lerp(targetCF, 1/AimbotSmoothness)
+                end
+            end
+        end
+    end)
+    table.insert(DTL_Connections, aimLoop)
+end
+
+function startTriggerbot()
+    local tBotLoop = RunService.Heartbeat:Connect(function()
+        if TriggerBotEnabled then
+            local target = getClosestPlayerToMouse()
+            if target and target.Character and isPlayerInView(target) then
+                shootGun(target.Character)
+            end
+        end
+    end)
+    table.insert(DTL_Connections, tBotLoop)
+end
+
+function startKillAll()
+    local killLoop = RunService.Heartbeat:Connect(function()
+        if not KillAllEnabled then return end
+        local enemies = scanEnemyPlayers()
+        for _,plr in ipairs(enemies) do
+            if plr.Character then
+                shootGun(plr.Character)
+                break
+            end
+        end
+    end)
+    table.insert(DTL_Connections, killLoop)
+end
+
+function startAutoStab()
+    local stabLoop = RunService.Heartbeat:Connect(function()
+        if AutoStabEnabled then
+            local target = getClosestPlayerInRange()
+            if target and target.Character then
+                
+            end
+        end
+    end)
+    table.insert(DTL_Connections, stabLoop)
+end
+
+function startAutoFire()
+    if vu490 then return end
+    vu490 = RunService.Heartbeat:Connect(function()
+        if not AutoFireEnabled then return end
+        updateESP()
+        Character = LocalPlayer.Character
+        local now = tick()
+        if now - vu491 < vu56 then return end
+        local myhrp = Character and Character:FindFirstChild("HumanoidRootPart")
+        if not myhrp then return end
+       local enemies = scanEnemyPlayers()
+
+        for _, player in ipairs(enemies) do
+            if not isRealEnemy(player) then continue end
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            if humanoid and humanoid.Health > 0 and hrp then
+                local dist = (hrp.Position - myhrp.Position).Magnitude
+                if dist <= MAX_DISTANCE and isPlayerInView(player) then
+                    local gun = getEquippedWeapon()
+                    if not (gun and gun:FindFirstChild("Fire", true)) then
+                        vu234("Gun")
+                        task.wait(0.1)
+                    end
+                    shootGun(player.Character, true)
+                    vu491 = now
+                    break
+                end
+            end
+        end
+    end)
+    table.insert(DTL_Connections, vu490)
+end
+
+local AI_Settings = {
+    PathfindDist = 30,
+    StrafeDist = 30,
+    CooldownTime = 1.2,
+    StrafeWidth = 10,
+    StrafeSpeed = 5
+}
+
+local function getClosestEnemy()
+    local enemies = scanEnemyPlayers()
+    local closest = nil
+    local shortest = math.huge
+    local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return nil end
+    for _, enemy in ipairs(enemies) do
+        if not isRealEnemy(enemy) then continue end
+        local eroot = enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart")
+        if eroot then
+            local dist = (eroot.Position - root.Position).Magnitude
+            if dist < shortest then shortest = dist; closest = enemy end
+        end
+    end
+    return closest
+end
+
+local function computePath(targetPos)
+    local agentParams = {
+        AgentHeight = 5,
+        AgentRadius = 2,
+        AgentCanJump = true,
+        AgentJumpHeight = 8
+    }
+    local path = PathfindingService:CreatePath(agentParams)
+    local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return nil end
+    
+    local success, _ = pcall(function()
+        path:ComputeAsync(root.Position, targetPos)
+    end)
+    
+    if success and path.Status == Enum.PathStatus.Success then
+        return path:GetWaypoints()
+    end
+    return nil
+end
+
+local function processTacticalAI()
+    local team = LocalPlayer.Team
+    if not team or (team.Name ~= "Team1" and team.Name ~= "Team2") then return end
+    
+    local char = LocalPlayer.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    local hum = char:FindFirstChild("Humanoid")
+    if not root or not hum or hum.Health <= 0 then return end
+
+    local enemy = getClosestEnemy()
+    if not enemy then return end
+    
+    local eroot = enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart")
+    if not eroot then return end
+
+    local dist = (eroot.Position - root.Position).Magnitude
+    local isCooldown = (tick() - getgenv().LastShotTime) < AI_Settings.CooldownTime
+
+    local origin = root.Position
+    local dir = (enemy.Character.Head.Position - origin).Unit * dist
+    local rayParams = RaycastParams.new()
+    rayParams.FilterDescendantsInstances = {char, enemy.Character}
+    rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+    local ray = workspace:Raycast(origin, dir, rayParams)
+    
+    local isWallBlocking = false
+    if ray and ray.Instance then
+        isWallBlocking = true
+    end
+
+    if isWallBlocking then
+        local lookCF = CFrame.lookAt(root.Position, Vector3.new(eroot.Position.X, root.Position.Y, eroot.Position.Z))
+        local strafeMove = lookCF.RightVector * 20 
+        hum:Move(strafeMove, false)
+        return
+    end
+
+    if eroot.Position.Y < root.Position.Y - 15 and dist < 50 then
+        hum:MoveTo(eroot.Position)
+        return
+    end
+
+    if dist > AI_Settings.PathfindDist then
+        local flankPos = eroot.Position + (eroot.CFrame.LookVector * -8)
+        local waypoints = computePath(flankPos)
+        
+        if waypoints and waypoints[2] then
+            hum:MoveTo(waypoints[2].Position)
+        else
+            hum:MoveTo(eroot.Position)
+        end
+        return
+    end
+
+    local lookCF = CFrame.lookAt(root.Position, Vector3.new(eroot.Position.X, root.Position.Y, eroot.Position.Z))
+    Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, eroot.Position), 0.1)
+    
+    local timeVal = tick() * AI_Settings.StrafeSpeed
+    local strafeVector = lookCF.RightVector * math.sin(timeVal) * AI_Settings.StrafeWidth
+    
+    local moveVector = Vector3.new(0, 0, 0)
+
+    if isCooldown then
+        hum.Jump = true
+    end
+
+    local approachVector = (eroot.Position - root.Position).Unit * 10
+    moveVector = approachVector + strafeVector
+
+    hum:Move(moveVector, false)
+end
+
+local LoopKillAllEnabled = false
+local lastAttack = 0
+
+function startLoopKillAll()
+    local loopKill = RunService.Heartbeat:Connect(function()
+        if not LoopKillAllEnabled then return end
+        if not LocalPlayer.Character then return end
+
+        local now = tick()
+        if now - lastAttack < 0.35 then return end
+
+        local enemies = scanEnemyPlayers()
+        for _, plr in ipairs(enemies) do
+            local char = plr.Character
+            if char and char:FindFirstChildOfClass("Humanoid") and char.Humanoid.Health > 0 then
+                local weapon = getEquippedWeapon()
+                local isGun = weapon and weapon:FindFirstChild("Fire", true)
+                local isKnife = weapon and weapon:FindFirstChild("ThrowSound", true)
+
+                if isGun then
+                    shootGun(char)
+                elseif isKnife then
+                    
+                else
+                    vu234("Gun")
+                    task.wait(0.05)
+                end
+                lastAttack = now
+                
+                getgenv().UsedLoopKillRound = true
+                break
+            end
+        end
+    end)
+    table.insert(DTL_Connections, loopKill)
+end
+
+local function resolvePointsText()
+    local gui = LocalPlayer:WaitForChild("PlayerGui")
+    local hud = gui:WaitForChild("KillsHUD")
+    local container = hud:WaitForChild("Container")
+    local right = container:WaitForChild("RightContainer")
+    local entry = right:WaitForChild("EntryContainer")
+    local pointsContainer = entry:WaitForChild("PointsContainer")
+    return pointsContainer:WaitForChild("Points")
+end
+
+local function HopServer()
+    StatInfo.Text = "Status: WIN DETECTED! HOPPING SERVER..."
+    local PlaceId = game.PlaceId
+    local Api = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"
+    
+    local function ListServers(cursor)
+        local Raw = game:HttpGet(Api .. ((cursor and "&cursor="..cursor) or ""))
+        return HttpService:JSONDecode(Raw)
+    end
+
+    local Server, Next = nil, nil
+    
+    repeat
+        local Servers = ListServers(Next)
+        Server = Servers.data[1]
+        Next = Servers.nextPageCursor
+    until Server
+
+    if Server then
+        TeleportService:TeleportToPlaceInstance(PlaceId, Server.id, LocalPlayer)
+    end
+end
+
+local aiConnection = nil
+local function checkTeam()
+    Character = LocalPlayer.Character
+    local team = LocalPlayer.Team
+
+    if team and (team.Name == "Team1" or team.Name == "Team2") then
+        StopQueue()
+        
+        StatInfo.Text = "Status: COMBAT ACTIVE"
+        getgenv().UsedLoopKillRound = false
+        
+        local PointsText = nil
+        pcall(function() PointsText = resolvePointsText() end)
+
+        task.delay(6, function()
+            if LocalPlayer.Team == team then
+                scanEnemyPlayers()
+                updateESP()
+                if PointsText then
+                    local value = tonumber(PointsText.Text)
+                    if value == 4 then 
+                        LoopKillAllEnabled = true 
+                    else 
+                        LoopKillAllEnabled = false 
+                    end
+                end
+            end
+        end)
+
+        AutoFireEnabled = true
+        startAutoFire()
+        startAimbot()
+        startTriggerbot()
+        startKillAll()
+        startAutoStab()
+        startLoopKillAll()
+
+        if not aiConnection then
+            aiConnection = RunService.Heartbeat:Connect(function()
+                processTacticalAI()
+            end)
+            table.insert(DTL_Connections, aiConnection)
+        end
+
+    else
+        AutoFireEnabled = false
+        LoopKillAllEnabled = false
+        
+        if aiConnection then
+            aiConnection:Disconnect()
+            aiConnection = nil
+        end
+        
+        if getgenv().UsedLoopKillRound then
+            HopServer()
+        else
+            StartQueue()
+        end
+    end
+end
+
+local teamChangeConn = LocalPlayer:GetPropertyChangedSignal("Team"):Connect(checkTeam)
+table.insert(DTL_Connections, teamChangeConn)
+
+local charAddConn = LocalPlayer.CharacterAdded:Connect(checkTeam)
+table.insert(DTL_Connections, charAddConn)
+
+checkTeam()
+
+local autoFireCheck = RunService.Stepped:Connect(function()
+    local team = LocalPlayer.Team
+    if team and (team.Name == "Team1" or team.Name == "Team2") then
+        if AutoFireEnabled and not vu490 then
+            startAutoFire()
+        end
+    end
+end)
+table.insert(DTL_Connections, autoFireCheck)
